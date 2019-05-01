@@ -10,7 +10,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Repository.EntityFramework\Repository.EntityFramework.csproj" />
+    <ProjectReference Include="..\..\Shared\Repository.Core\Shared.Repository.Core.csproj" />
+    <ProjectReference Include="..\Repository.EntityFramework\Service.Ordering.Repository.EntityFramework.csproj" />
   </ItemGroup>
 
 </Project>

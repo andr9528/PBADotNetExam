@@ -15,19 +15,21 @@ namespace Main.Repository.EntityFramework
     {
         internal EntityRepository repo = null;
         private bool _useLazyLoading = false;
-        public BaseEntityRepositoryHandler(bool useLazyLoading = true)
+        public BaseEntityRepositoryHandler(EntityRepository repo)
         {
-            repo = new EntityRepository(useLazyLoading);
-            _useLazyLoading = useLazyLoading;
+            this.repo = repo;
         }
 
         public void ResetRepo()
         {
-            repo.Dispose();
-            repo = null;
+            throw new NotImplementedException();
 
-            repo = new EntityRepository(_useLazyLoading);
+            //repo.Dispose();
+            //repo = null;
+
+            //repo = new EntityRepository(_useLazyLoading);
         }
+
 
         public void Save()
         {

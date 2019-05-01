@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Repository.EntityFramework;
+using Service.Banking.Repository.EntityFramework;
 using System;
 using System.IO;
 
-namespace Base.Startup
+namespace Service.Banking.Base.Startup
 {
     public abstract class StartupBase : IStartupEF
     {

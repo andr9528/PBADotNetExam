@@ -1,15 +1,15 @@
-﻿using Domain.Concrete;
+﻿using Service.Banking.Domain.Concrete;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Repository.EntityFramework.Config
+namespace Service.Banking.Repository.EntityFramework.Config
 {
 
     // For each class you want to persist, you need to create a config class,
     // which tells Entity Framework, how to save the entities to the database.
 
     // Domain classes will most likely have navigational properties as interface types,
-    // during the config thess interface types need to be cast to the concrete versions.
+    // during the config these interface types need to be cast to the concrete versions.
 
     // e.g
     /*

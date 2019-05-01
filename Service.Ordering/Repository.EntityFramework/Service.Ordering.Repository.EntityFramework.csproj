@@ -11,8 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Domain.Concrete\Domain.Concrete.csproj" />
-    <ProjectReference Include="..\Repository.Core\Repository.Core.csproj" />
+    <ProjectReference Include="..\..\Shared\Repository.Core\Shared.Repository.Core.csproj" />
+    <ProjectReference Include="..\Domain.Concrete\Service.Ordering.Domain.Concrete.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,18 +1,18 @@
-﻿using Repository.Core;
+﻿using Shared.Repository.Core;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Repository.EntityFramework
+namespace Service.Banking.Repository.EntityFramework
 {
     public class SerializableEntityRepositoryHandler : BaseEntityRepositoryHandler, ISerializableRepository
     {
-        public SerializableEntityRepositoryHandler(bool useLazyLoading = true) : base(useLazyLoading)
+        public SerializableEntityRepositoryHandler(EntityRepository repository) : base(repository)
         {
-            
+
         }
 
-        // Below an Example of implmenting one domain this way is shown.
+        // Below an Example of implementing one domain this way is shown.
 
 
         // e.g 

@@ -1,18 +1,22 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 
-namespace Repository.EntityFramework
+namespace Service.Ordering.Repository.EntityFramework
 {
-    class EntityRepository : DbContext
+    public class EntityRepository : DbContext
     {
-        private bool useLazyLoading;
-        public EntityRepository(bool useLazyLoading = true)
+        private readonly DbContextOptions<EntityRepository> options;
+        private readonly bool useLazyLoading;
+        public EntityRepository(DbContextOptions<EntityRepository> options) : base(options)
         {
-            this.useLazyLoading = useLazyLoading;
+            this.options = options;
+            useLazyLoading = true;
+
+            //Database.Migrate();
         }
 
         // Underneath create as many DbSet' as you have domain classes you wish to persist.
-        // Each DbSet should have a Config file aplied in the method 'OnModelCreating'
+        // Each DbSet should have a Config file applied in the method 'OnModelCreating'
 
         // e.g
         // public virtual DbSet<YourDomainClass> YourDomainClassInPlural { get; set; }
@@ -20,7 +24,7 @@ namespace Repository.EntityFramework
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            // To Lazy Load properties they require the keywork Virtual.
+            // To Lazy Load properties they require the keyword Virtual.
             // Making use of Lazy load means that the property only loads as it is about to be used,
             // which improves performance of the program
             optionsBuilder.UseLazyLoadingProxies(useLazyLoading);

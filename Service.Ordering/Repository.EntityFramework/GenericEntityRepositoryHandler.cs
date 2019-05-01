@@ -1,18 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Repository.Core;
+using Shared.Repository.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Repository.EntityFramework
+namespace Service.Ordering.Repository.EntityFramework
 {
     public class GenericEntityRepositoryHandler : BaseEntityRepositoryHandler, IGenericRepository
     {
-        public GenericEntityRepositoryHandler(bool useLazyLoading = true) : base(useLazyLoading)
+        public GenericEntityRepositoryHandler(EntityRepository repository) : base(repository)
         {
-            
+
         }
 
         bool IGenericRepository.Add<T>(T element)

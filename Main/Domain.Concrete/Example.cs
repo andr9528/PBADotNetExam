@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Domain.Concrete
+namespace Main.Domain.Concrete
 {
     /*
     public class Example : IExample

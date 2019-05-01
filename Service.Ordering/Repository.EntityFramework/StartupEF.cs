@@ -4,10 +4,10 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Repository.Core;
+using Shared.Repository.Core;
 
 
-namespace Repository.EntityFramework
+namespace Service.Ordering.Repository.EntityFramework
 {
     public class StartupEf : IStartupEF
     {
@@ -20,7 +20,7 @@ namespace Repository.EntityFramework
         public IConfiguration Configuration { get; }
         private  string ConnectionStringName { get; }
 
-        public void ConfigureServices(IServiceCollection services)
+        public void SetupServices(IServiceCollection services)
         {
             services.AddDbContext<EntityRepository>(option => option.UseSqlServer(Configuration.GetConnectionString(ConnectionStringName)));
 
@@ -31,6 +31,6 @@ namespace Repository.EntityFramework
 
     public interface IStartupEF
     {
-        void ConfigureServices(IServiceCollection services);
+        void SetupServices(IServiceCollection services);
     }
 }

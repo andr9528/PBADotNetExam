@@ -3,12 +3,16 @@ using System;
 
 namespace Main.Repository.EntityFramework
 {
-    class EntityRepository : DbContext
+    public class EntityRepository : DbContext
     {
-        private bool useLazyLoading;
-        public EntityRepository(bool useLazyLoading = true)
+        private readonly DbContextOptions<EntityRepository> options;
+        private readonly bool useLazyLoading;
+        public EntityRepository(DbContextOptions<EntityRepository> options) : base(options)
         {
-            this.useLazyLoading = useLazyLoading;
+            this.options = options;
+            useLazyLoading = true;
+
+            //Database.Migrate();
         }
 
         // Underneath create as many DbSet' as you have domain classes you wish to persist.

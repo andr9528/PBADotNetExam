@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Domain.Core
+namespace Main.Domain.Core
 {
     /*
     public interface IExample : IEntity

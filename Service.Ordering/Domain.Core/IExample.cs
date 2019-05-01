@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Domain.Core
+namespace Service.Ordering.Domain.Core
 {
     /*
     public interface IExample : IEntity

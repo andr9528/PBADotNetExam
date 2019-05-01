@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Repository.Core;
+using Shared.Repository.Core;
 
-namespace Repository.EntityFramework
+namespace Service.Ordering.Repository.EntityFramework
 {
     /// <summary>  
     ///  This class should be accessed via the Generic or Serializable classes that inherit from it.  
@@ -15,18 +15,19 @@ namespace Repository.EntityFramework
     {
         internal EntityRepository repo = null;
         private bool _useLazyLoading = false;
-        public BaseEntityRepositoryHandler(bool useLazyLoading = true)
+        public BaseEntityRepositoryHandler(EntityRepository repo)
         {
-            repo = new EntityRepository(useLazyLoading);
-            _useLazyLoading = useLazyLoading;
+            this.repo = repo;
         }
 
         public void ResetRepo()
         {
-            repo.Dispose();
-            repo = null;
+            throw new NotImplementedException();
 
-            repo = new EntityRepository(_useLazyLoading);
+            //repo.Dispose();
+            //repo = null;
+
+            //repo = new EntityRepository(_useLazyLoading);
         }
 
         public void Save()

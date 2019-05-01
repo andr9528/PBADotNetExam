@@ -10,9 +10,9 @@ namespace Main.Repository.EntityFramework
 {
     public class GenericEntityRepositoryHandler : BaseEntityRepositoryHandler, IGenericRepository
     {
-        public GenericEntityRepositoryHandler(bool useLazyLoading = true) : base(useLazyLoading)
+        public GenericEntityRepositoryHandler(EntityRepository repository) : base(repository)
         {
-            
+
         }
 
         bool IGenericRepository.Add<T>(T element)

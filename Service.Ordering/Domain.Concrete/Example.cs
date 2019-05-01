@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Domain.Concrete
+namespace Service.Ordering.Domain.Concrete
 {
     /*
     public class Example : IExample

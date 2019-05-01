@@ -1,4 +1,4 @@
-﻿using Domain.Concrete;
+﻿using Main.Domain.Concrete;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -9,7 +9,7 @@ namespace Main.Repository.EntityFramework.Config
     // which tells Entity Framework, how to save the entities to the database.
 
     // Domain classes will most likely have navigational properties as interface types,
-    // during the config thess interface types need to be cast to the concrete versions.
+    // during the config these interface types need to be cast to the concrete versions.
 
     // e.g
     /*
@@ -33,7 +33,7 @@ namespace Main.Repository.EntityFramework.Config
 
             // Defining whether or not a property is required 
                 // Takes in a false in the 'IsRequred' if one wish to make it not required
-                // Properteis that are nullable default to be not required -->
+                // Properties that are nullable default to be not required -->
             builder.Property(x => x.PropertyA).IsRequired();
 
             // Defining a One-To-Many relation -->
