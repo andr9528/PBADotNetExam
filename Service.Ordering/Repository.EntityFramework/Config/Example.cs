@@ -1,6 +1,8 @@
-﻿using Service.Ordering.Domain.Concrete;
+﻿/*
+using Service.Ordering.Domain.Concrete;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+*/
 
 namespace Service.Ordering.Repository.EntityFramework.Config
 {
@@ -33,7 +35,7 @@ namespace Service.Ordering.Repository.EntityFramework.Config
 
             // Defining whether or not a property is required 
                 // Takes in a false in the 'IsRequred' if one wish to make it not required
-                // Properteis that are nullable default to be not required -->
+                // Properties that are nullable default to be not required -->
             builder.Property(x => x.PropertyA).IsRequired();
 
             // Defining a One-To-Many relation -->

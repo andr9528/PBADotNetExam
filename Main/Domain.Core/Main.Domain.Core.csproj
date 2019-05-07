@@ -4,4 +4,9 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\Shared\Repository.Core\Shared.Repository.Core.csproj" />
+    <ProjectReference Include="..\Main.Domain.Enums\Main.Domain.Enums.csproj" />
+  </ItemGroup>
+
 </Project>

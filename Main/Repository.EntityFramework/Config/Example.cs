@@ -1,6 +1,8 @@
-﻿using Main.Domain.Concrete;
+﻿/*
+using Main.Domain.Concrete;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+*/
 
 namespace Main.Repository.EntityFramework.Config
 {

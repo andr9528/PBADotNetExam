@@ -1,6 +1,8 @@
-﻿using Service.Banking.Domain.Concrete;
+﻿/*
+using Service.Banking.Domain.Concrete;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+*/
 
 namespace Service.Banking.Repository.EntityFramework.Config
 {
