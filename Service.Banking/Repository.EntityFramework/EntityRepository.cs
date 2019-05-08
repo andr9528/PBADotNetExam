@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
+using Service.Banking.Domain.Concrete;
+using Service.Banking.Repository.EntityFramework.Config;
 
 namespace Service.Banking.Repository.EntityFramework
 {
@@ -20,6 +22,8 @@ namespace Service.Banking.Repository.EntityFramework
 
         // e.g
         // public virtual DbSet<YourDomainClass> YourDomainClassInPlural { get; set; }
+        public virtual DbSet<Account> Accounts { get; set; }
+        public virtual DbSet<Person> Persons { get; set; }
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -37,6 +41,8 @@ namespace Service.Banking.Repository.EntityFramework
 
             // e.g
             // modelBuilder.ApplyConfiguration(new YourDomainClassConfig());
+            modelBuilder.ApplyConfiguration(new AccountConfig());
+            modelBuilder.ApplyConfiguration(new PersonConfig());
         }
     }
 }

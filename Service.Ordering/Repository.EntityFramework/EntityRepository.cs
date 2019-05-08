@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Service.Ordering.Domain.Concrete;
 using System;
+using Service.Ordering.Repository.EntityFramework.Config;
 
 namespace Service.Ordering.Repository.EntityFramework
 {
@@ -20,6 +22,8 @@ namespace Service.Ordering.Repository.EntityFramework
 
         // e.g
         // public virtual DbSet<YourDomainClass> YourDomainClassInPlural { get; set; }
+        public virtual DbSet<Item> Items { get; set; }
+        public virtual DbSet<Order> Orders { get; set; }
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -33,10 +37,12 @@ namespace Service.Ordering.Repository.EntityFramework
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Create a new class under Config, with the name of the domain class you wish to persist,
-            // ending it in Config, to differnetiate it from the actual class
+            // ending it in Config, to differentiate it from the actual class
 
             // e.g
             // modelBuilder.ApplyConfiguration(new YourDomainClassConfig());
+            modelBuilder.ApplyConfiguration(new ItemConfig());
+            modelBuilder.ApplyConfiguration(new OrderConfig());
         }
     }
 }

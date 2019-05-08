@@ -12,5 +12,6 @@ namespace Main.Domain.Core
         /// The string number indicating the Account, Item or what ever is being changed
         /// </summary>
         string Number { get; set; }
+        double Value { get; set; }
     }
 }
