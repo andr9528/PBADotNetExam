@@ -37,15 +37,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Service.Ordering.Repository
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Service.Ordering.Base.Startup", "Service.Ordering\Startup.Base\Service.Ordering.Base.Startup.csproj", "{304F4080-A4D7-4340-ADDE-4401DA1DD369}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Main.Application", "Main\Main.Application\Main.Application.csproj", "{A59C584A-3B32-41A1-A1AB-6919E79743A7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Main.Application", "Main\Main.Application\Main.Application.csproj", "{A59C584A-3B32-41A1-A1AB-6919E79743A7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service.Banking.Api", "Service.Banking\Service.Banking.Api\Service.Banking.Api.csproj", "{08029026-54AB-4A6E-8691-4F0683118EE4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Service.Banking.Api", "Service.Banking\Service.Banking.Api\Service.Banking.Api.csproj", "{08029026-54AB-4A6E-8691-4F0683118EE4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service.Ordering.Api", "Service.Ordering\Service.Ordering.Api\Service.Ordering.Api.csproj", "{C62145F6-5AD7-4F52-A587-9F6157F74676}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Service.Ordering.Api", "Service.Ordering\Service.Ordering.Api\Service.Ordering.Api.csproj", "{C62145F6-5AD7-4F52-A587-9F6157F74676}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Main.Domain.Proxies", "Main\Main.Domain.Proxies\Main.Domain.Proxies.csproj", "{04D379B8-B4F1-45B1-A6AF-8B10BC9A686D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Main.Domain.Proxies", "Main\Main.Domain.Proxies\Main.Domain.Proxies.csproj", "{04D379B8-B4F1-45B1-A6AF-8B10BC9A686D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Main.Domain.Enums", "Main\Main.Domain.Enums\Main.Domain.Enums.csproj", "{AC3352B8-76EC-4968-B1FA-5A3F379C8341}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Main.Domain.Enums", "Main\Main.Domain.Enums\Main.Domain.Enums.csproj", "{AC3352B8-76EC-4968-B1FA-5A3F379C8341}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Main.Api", "Main\Main.Api\Main.Api.csproj", "{F08046AF-457B-4ABA-B02E-986B22A0B413}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared.Extensions", "Shared\Shared.Extensions\Shared.Extensions.csproj", "{DAA64C32-D1FA-4858-891B-78646DACAC03}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -125,6 +129,14 @@ Global
 		{AC3352B8-76EC-4968-B1FA-5A3F379C8341}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AC3352B8-76EC-4968-B1FA-5A3F379C8341}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AC3352B8-76EC-4968-B1FA-5A3F379C8341}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F08046AF-457B-4ABA-B02E-986B22A0B413}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F08046AF-457B-4ABA-B02E-986B22A0B413}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F08046AF-457B-4ABA-B02E-986B22A0B413}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F08046AF-457B-4ABA-B02E-986B22A0B413}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DAA64C32-D1FA-4858-891B-78646DACAC03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAA64C32-D1FA-4858-891B-78646DACAC03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAA64C32-D1FA-4858-891B-78646DACAC03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAA64C32-D1FA-4858-891B-78646DACAC03}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -148,6 +160,8 @@ Global
 		{C62145F6-5AD7-4F52-A587-9F6157F74676} = {775989C8-94C6-4280-AB51-AE8080998060}
 		{04D379B8-B4F1-45B1-A6AF-8B10BC9A686D} = {AF37B03E-D14B-4498-A971-40CAB459EB9C}
 		{AC3352B8-76EC-4968-B1FA-5A3F379C8341} = {AF37B03E-D14B-4498-A971-40CAB459EB9C}
+		{F08046AF-457B-4ABA-B02E-986B22A0B413} = {AF37B03E-D14B-4498-A971-40CAB459EB9C}
+		{DAA64C32-D1FA-4858-891B-78646DACAC03} = {73DEEF48-6E16-4D7F-8B22-904B374F487B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F872C9B1-01F0-41EB-896A-D42B148F0D88}

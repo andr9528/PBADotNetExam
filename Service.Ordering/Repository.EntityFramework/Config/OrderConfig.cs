@@ -19,7 +19,7 @@ namespace Service.Ordering.Repository.EntityFramework.Config
             builder.Property(x => x.OrderNumber).IsRequired();
             builder.HasIndex(x => x.OrderNumber).IsUnique();
 
-            builder.HasMany(x => (ICollection<Item>) x.Items).WithOne().IsRequired();
+            builder.HasMany(x => (ICollection<Item>) x.Items).WithOne();
         }
     }
 }

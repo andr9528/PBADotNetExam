@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Main.Domain.Concrete;
+using Main.Domain.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Shared.Repository.Core;
@@ -52,7 +54,7 @@ namespace Main.Repository.EntityFramework
         internal string GetAmountAdded(ICollection<bool> results)
         {
             return string.Format("Added {0} out of {1}.", results.Where(b => b).Count(), results.Count);
-        } 
+        }
         #endregion
 
         #region Find Query Builders
@@ -60,7 +62,7 @@ namespace Main.Repository.EntityFramework
         // There should be one query for each case in either 'Find' or 'FindMultiple',
         // meaning if there is a case to find YourDomainClass in both methods,
         // then there should be one query builder, meant to build queries for YourDomainClass
-        // as both find methods make use of the same query, only the amount of elements returned are diffent.
+        // as both find methods make use of the same query, only the amount of elements returned are different.
         /*
         private IQueryable<YourDomainClass> BuildFindYourDomainClassQuery(IYourDomainClass y, IQueryable<YourDomainClass> query)
         {
@@ -77,6 +79,14 @@ namespace Main.Repository.EntityFramework
             return query;
         }
         */
+
+        private IQueryable<Event> BuildFindEventQuery(IEvent e, IQueryable<Event> query)
+        {
+            if (e.Id != default(int))
+                query = query.Where(x => x.Id == e.Id);
+
+            return query;
+        }
 
         #endregion
 
@@ -103,6 +113,13 @@ namespace Main.Repository.EntityFramework
         }
         */
 
+        internal ICollection<Event> FindMultipleEvents(IEvent e)
+        {
+            var query = repo.Events.AsQueryable();
+            query = BuildFindEventQuery(e, query);
+
+            return FindMultipleResults(query);
+        }
 
         #endregion
 

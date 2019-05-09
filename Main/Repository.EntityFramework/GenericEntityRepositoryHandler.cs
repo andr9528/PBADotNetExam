@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Main.Domain.Core;
 
 namespace Main.Repository.EntityFramework
 {
@@ -92,18 +93,23 @@ namespace Main.Repository.EntityFramework
             ICollection<T> entities = null;
             switch (predicate)
             {
-                // Create cases for all the different classes that should be retriable from the database
+                // Create cases for all the different classes that should be retrievable from the database
 
                 // Example:
                 // case IYourDomainClass y:
                 //    entities = FindMultipleYourDomainClassInPlural(y) as ICollection<T>;
                 //    break;
+                case IEvent e:
+                    entities = FindMultipleEvents(e) as ICollection<T>;
+                    break;
                 default:
                     throw new Exception("ERROR ERROR ERROR");
             }
 
             return entities;
         }
+
+
 
         bool IGenericRepository.Update<T>(T element)
         {
