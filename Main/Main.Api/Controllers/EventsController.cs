@@ -24,18 +24,32 @@ namespace Main.Api.Controllers
             _handler = new GenericEntityRepositoryHandler(_context);
         }
 
-        //// GET: api/Events
-        //[HttpGet]
-        //public async Task<ActionResult<IEnumerable<Event>>> GetEvents()
-        //{
-        //    return await _context.Events.ToListAsync();
-        //}
-
         // GET: api/Events
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Event>>> GetEvents([FromBody] Event @event)
+        public async Task<ActionResult<IEnumerable<Event>>> GetEvents(/*[FromBody]*/ Event @event)
         {
-            return await ((DbSet<Event>)_handler.FindMultiple(@event)).ToListAsync();
+            if (@event != null)
+            {
+                try
+                {
+                    //get the speified events
+                    return await ((DbSet<Event>)_handler.FindMultiple(@event)).ToListAsync();
+                }
+                catch (Exception e)
+                {
+                    if (e.Message.Contains("Found no results"))
+                    {
+                        return NoContent();
+                    }
+                    else
+                        throw e;
+                }
+            }
+            else
+            {
+                //get all events
+                return await _context.Events.ToListAsync();
+            }
         }
 
         // GET: api/Events/5

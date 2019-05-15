@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -55,7 +56,6 @@ namespace Main.Application
                     Console.WriteLine("Shutting Down...");
                     return Task.FromResult("Returning");
                 case 1:
-                    Console.WriteLine("Displaying all known Events...");
                     return DisplayEvents();
                 default:
                     Console.WriteLine("Inputed value has no matching menu option, Please try again...");
@@ -65,17 +65,23 @@ namespace Main.Application
 
         private async Task DisplayEvents()
         {
+            Console.WriteLine("Displaying all known Events...");
+
             List<Event> events = new List<Event>();
             var response = await mainClient.GetByJsonAsync("Events", new Event());
             if (response.IsSuccessStatusCode)
             {
                 var stringJson = await response.Content.ReadAsStringAsync();
                 events = JsonConvert.DeserializeObject<List<Event>>(stringJson);
-            }
 
-            foreach (var @event in events)
+                foreach (var @event in events)
+                {
+                    Console.WriteLine(@event.ToString());
+                }
+            }
+            else if (response.StatusCode == HttpStatusCode.NoContent)
             {
-                Console.WriteLine(@event.ToString());
+                Console.WriteLine("No Events exist...");
             }
         }
 
@@ -101,17 +107,17 @@ namespace Main.Application
         /// </summary>
         private void Configure()
         {
-            orderClient.BaseAddress = new Uri("http://localhost:5005/api/");
+            orderClient.BaseAddress = new Uri("http://localhost:5004/api/");
             orderClient.DefaultRequestHeaders.Accept.Clear();
             orderClient.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));
 
-            bankClient.BaseAddress = new Uri("http://localhost:5003/api/");
+            bankClient.BaseAddress = new Uri("http://localhost:5002/api/");
             bankClient.DefaultRequestHeaders.Accept.Clear();
             bankClient.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));
 
-            mainClient.BaseAddress = new Uri("http://localhost:5001/api/");
+            mainClient.BaseAddress = new Uri("http://localhost:5000/api/");
             mainClient.DefaultRequestHeaders.Accept.Clear();
             mainClient.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));

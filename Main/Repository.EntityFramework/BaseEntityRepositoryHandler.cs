@@ -98,7 +98,7 @@ namespace Main.Repository.EntityFramework
             if (result.Count() > 0)
                 return new List<T>(result);
             else
-                throw new Exception(string.Format("Found no result for {0}", typeof(T).Name));
+                throw new Exception(string.Format("Found no results for {0}", typeof(T).Name));
         }
         // Create methods for all the different classes, where you should be able to get multiple specific elements.
 
