@@ -17,6 +17,7 @@ namespace Service.Banking.Repository.EntityFramework.Config
             builder.Property(x => x.Version).IsRowVersion();
 
             builder.HasMany(x => (ICollection<Account>) x.Accounts).WithOne(x => (Person) x.Owner).IsRequired();
+            builder.HasIndex(x => x.PersonNumber).IsUnique();
         }
     }
 }

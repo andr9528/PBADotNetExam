@@ -69,7 +69,9 @@ namespace Main.Application
 
             List<Event> events = new List<Event>();
             var response = await mainClient.GetByJsonAsync("Events", new Event());
-            if (response.IsSuccessStatusCode)
+            // Original propertie to test for succes
+            //response.IsSuccessStatusCode
+            if (response.StatusCode == HttpStatusCode.OK) 
             {
                 var stringJson = await response.Content.ReadAsStringAsync();
                 events = JsonConvert.DeserializeObject<List<Event>>(stringJson);
@@ -91,6 +93,7 @@ namespace Main.Application
             {
                 StringBuilder builder = new StringBuilder();
 
+                builder.AppendLine();
                 builder.AppendLine("Type the marked number of the desired action and hit enter...");
                 builder.AppendLine("1 --> Display existing Events");
                 builder.AppendLine("0 --> Exit Program");

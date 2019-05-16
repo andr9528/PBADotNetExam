@@ -26,7 +26,7 @@ namespace Main.Api.Controllers
 
         // GET: api/Events
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Event>>> GetEvents(/*[FromBody]*/ Event @event)
+        public async Task<ActionResult<IEnumerable<Event>>> GetEvents(Event @event)
         {
             if (@event != null)
             {
