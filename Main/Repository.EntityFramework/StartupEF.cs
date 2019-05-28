@@ -4,12 +4,13 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Shared.Base.Startup.Core;
 using Shared.Repository.Core;
 
 
 namespace Main.Repository.EntityFramework
 {
-    public class StartupEf : IStartupEF
+    public class StartupEf : IStartup
     {
         public StartupEf(IConfiguration configuration, string connectionStringName)
         {
@@ -27,10 +28,5 @@ namespace Main.Repository.EntityFramework
             services.AddTransient(typeof(IGenericRepository), typeof(GenericEntityRepositoryHandler));
             services.AddTransient(typeof(ISerializableRepository), typeof(SerializableEntityRepositoryHandler));
         }
-    }
-
-    public interface IStartupEF
-    {
-        void SetupServices(IServiceCollection services);
     }
 }

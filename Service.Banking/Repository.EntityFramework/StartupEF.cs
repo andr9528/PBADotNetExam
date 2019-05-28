@@ -5,11 +5,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Shared.Repository.Core;
+using Shared.Base.Startup.Core;
 
 
 namespace Service.Banking.Repository.EntityFramework
 {
-    public class StartupEf : IStartupEF
+    public class StartupEf : IStartup
     {
         public StartupEf(IConfiguration configuration, string connectionStringName)
         {
@@ -27,10 +28,5 @@ namespace Service.Banking.Repository.EntityFramework
             services.AddTransient(typeof(IGenericRepository), typeof(GenericEntityRepositoryHandler));
             services.AddTransient(typeof(ISerializableRepository), typeof(SerializableEntityRepositoryHandler));
         }
-    }
-
-    public interface IStartupEF
-    {
-        void SetupServices(IServiceCollection services);
     }
 }

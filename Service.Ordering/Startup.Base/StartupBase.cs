@@ -1,14 +1,16 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Service.Ordering.Repository.EntityFramework;
+using Shared.Base.Startup.Core;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Service.Ordering.Base.Startup
 {
-    public abstract class StartupBase : IStartupEF
+    public abstract class StartupBase
     {
-        private IStartupEF _startupEf = null;
+        internal List<IStartup> modules = new List<IStartup>();
 
         public StartupBase(IConfiguration config = null, string connectionStringName = "")
         {
@@ -25,7 +27,7 @@ namespace Service.Ordering.Base.Startup
 
             if (connectionStringName != "")
             {
-                _startupEf = new StartupEf(Configuration, connectionStringName);
+                modules.Add(new StartupEf(Configuration, connectionStringName));
             }
         }
 
@@ -35,9 +37,9 @@ namespace Service.Ordering.Base.Startup
         {
             Console.WriteLine("Setting up Services...");
 
-            if (_startupEf != null)
+            foreach (var module in modules)
             {
-                _startupEf.SetupServices(services);
+                module.SetupServices(services);
             }
         }
     }

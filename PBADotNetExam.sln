@@ -47,9 +47,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Main.Domain.Proxies", "Main
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Main.Domain.Enums", "Main\Main.Domain.Enums\Main.Domain.Enums.csproj", "{AC3352B8-76EC-4968-B1FA-5A3F379C8341}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Main.Api", "Main\Main.Api\Main.Api.csproj", "{F08046AF-457B-4ABA-B02E-986B22A0B413}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Main.Api", "Main\Main.Api\Main.Api.csproj", "{F08046AF-457B-4ABA-B02E-986B22A0B413}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared.Extensions", "Shared\Shared.Extensions\Shared.Extensions.csproj", "{DAA64C32-D1FA-4858-891B-78646DACAC03}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared.Extensions", "Shared\Shared.Extensions\Shared.Extensions.csproj", "{DAA64C32-D1FA-4858-891B-78646DACAC03}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared.Base.Startup.Core", "Shared\Shared.Base.Startup.Core\Shared.Base.Startup.Core.csproj", "{A63651FF-20C5-42F8-BE7D-5AAFBB7A2473}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -137,6 +139,10 @@ Global
 		{DAA64C32-D1FA-4858-891B-78646DACAC03}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DAA64C32-D1FA-4858-891B-78646DACAC03}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DAA64C32-D1FA-4858-891B-78646DACAC03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A63651FF-20C5-42F8-BE7D-5AAFBB7A2473}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A63651FF-20C5-42F8-BE7D-5AAFBB7A2473}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A63651FF-20C5-42F8-BE7D-5AAFBB7A2473}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A63651FF-20C5-42F8-BE7D-5AAFBB7A2473}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -162,6 +168,7 @@ Global
 		{AC3352B8-76EC-4968-B1FA-5A3F379C8341} = {AF37B03E-D14B-4498-A971-40CAB459EB9C}
 		{F08046AF-457B-4ABA-B02E-986B22A0B413} = {AF37B03E-D14B-4498-A971-40CAB459EB9C}
 		{DAA64C32-D1FA-4858-891B-78646DACAC03} = {73DEEF48-6E16-4D7F-8B22-904B374F487B}
+		{A63651FF-20C5-42F8-BE7D-5AAFBB7A2473} = {73DEEF48-6E16-4D7F-8B22-904B374F487B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F872C9B1-01F0-41EB-896A-D42B148F0D88}
