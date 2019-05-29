@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Service.Ordering.Domain.Core;
 
 namespace Service.Ordering.Repository.EntityFramework
 {
@@ -28,13 +29,17 @@ namespace Service.Ordering.Repository.EntityFramework
                 // case IYourDomainClass y:
                 //    result = AddYourDomainClass(y);
                 //    break;
-
+                case IItem i:
+                    result = AddItem(i);
+                    break;
                 default:
                     throw new Exception("ERROR ERROR ERROR");
             }
 
             return result;
         }
+
+        
 
         string IGenericRepository.AddMultiple<T>(ICollection<T> elements)
         {
@@ -98,12 +103,18 @@ namespace Service.Ordering.Repository.EntityFramework
                 // case IYourDomainClass y:
                 //    entities = FindMultipleYourDomainClassInPlural(y) as ICollection<T>;
                 //    break;
+
+                case IItem i:
+                    entities = FindMultipleItems(i) as ICollection<T>;
+                    break;
                 default:
                     throw new Exception("ERROR ERROR ERROR");
             }
 
             return entities;
         }
+
+
 
         bool IGenericRepository.Update<T>(T element)
         {

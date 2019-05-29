@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Service.Banking.Domain.Core;
 
 namespace Service.Banking.Repository.EntityFramework
 {
@@ -28,13 +29,17 @@ namespace Service.Banking.Repository.EntityFramework
                 // case IYourDomainClass y:
                 //    result = AddYourDomainClass(y);
                 //    break;
-
+                case IPerson p:
+                    result = AddPerson(p);
+                    break;
                 default:
                     throw new Exception("ERROR ERROR ERROR");
             }
 
             return result;
         }
+
+
 
         string IGenericRepository.AddMultiple<T>(ICollection<T> elements)
         {
@@ -98,12 +103,17 @@ namespace Service.Banking.Repository.EntityFramework
                 // case IYourDomainClass y:
                 //    entities = FindMultipleYourDomainClassInPlural(y) as ICollection<T>;
                 //    break;
+                case IPerson p:
+                    entities = FindMultiplePeople(p) as ICollection<T>;
+                    break;
                 default:
                     throw new Exception("ERROR ERROR ERROR");
             }
 
             return entities;
         }
+
+
 
         bool IGenericRepository.Update<T>(T element)
         {

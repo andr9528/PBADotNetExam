@@ -28,28 +28,27 @@ namespace Main.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Event>>> GetEvents(Event @event)
         {
-            if (@event != null)
+            try
             {
-                try
+                var results = await Task.Run(async () => _handler.FindMultiple(@event));
+
+                return Ok(results);
+            }
+            catch (Exception e)
+            {
+                if (e.Message.Contains("Found no results"))
                 {
-                    //get the speified events
-                    return await ((DbSet<Event>)_handler.FindMultiple(@event)).ToListAsync();
+                    return NoContent();
                 }
-                catch (Exception e)
+                else
                 {
-                    if (e.Message.Contains("Found no results"))
-                    {
-                        return NoContent();
-                    }
-                    else
-                        throw e;
+                    Console.WriteLine(e);
+                    throw e;
                 }
             }
-            else
-            {
-                //get all events
-                return await _context.Events.ToListAsync();
-            }
+
+            //return await _context.Events.ToListAsync();
+            
         }
 
         // GET: api/Events/5

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Service.Ordering.Domain.Concrete;
 using Service.Ordering.Repository.EntityFramework;
+using Shared.Repository.Core;
 
 namespace Service.Ordering.Api.Controllers
 {
@@ -15,18 +16,38 @@ namespace Service.Ordering.Api.Controllers
     public class ItemsController : ControllerBase
     {
         private readonly EntityRepository _context;
+        private readonly IGenericRepository _handler;
 
         public ItemsController(EntityRepository context)
         {
             _context = context;
-            _context.Database.EnsureCreated();
+            _handler = new GenericEntityRepositoryHandler(_context);
         }
 
         // GET: api/Items
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Item>>> GetItems()
+        public async Task<ActionResult<IEnumerable<Item>>> GetItems(Item item)
         {
-            return await _context.Items.ToListAsync();
+            try
+            {
+                var results = await Task.Run(async () => _handler.FindMultiple(item));
+
+                return Ok(results);
+            }
+            catch (Exception e)
+            {
+                if (e.Message.Contains("Found no results"))
+                {
+                    return NoContent();
+                }
+                else
+                {
+                    Console.WriteLine(e);
+                    throw e;
+                }
+            }
+            
+            //return await _context.Items.ToListAsync();
         }
 
         // GET: api/Items/5
@@ -88,10 +109,31 @@ namespace Service.Ordering.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<Item>> PostItem(Item item)
         {
-            _context.Items.Add(item);
-            await _context.SaveChangesAsync();
+            try
+            {
+                var result = _handler.Add(item);
 
-            return CreatedAtAction("GetItem", new { id = item.Id }, item);
+                if (result)
+                {
+                    await _context.SaveChangesAsync();
+                    return StatusCode(StatusCodes.Status201Created,
+                        string.Format("Succesfully added item, Result -> {0}", result));
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status409Conflict, string.Format("Unable to add Item, Result -> {0}", result));
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw e;
+            }
+
+            //_context.Items.Add(item);
+            //await _context.SaveChangesAsync();
+
+            //return CreatedAtAction("GetItem", new { id = item.Id }, item);
         }
 
         // DELETE: api/Items/5

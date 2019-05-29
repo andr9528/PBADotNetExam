@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Shared\Repository.Core\Shared.Repository.Core.csproj" />
+    <ProjectReference Include="..\..\Shared\Shared.Repository.Core\Shared.Repository.Core.csproj" />
     <ProjectReference Include="..\..\Shared\Shared.Base.Startup.Core\Shared.Base.Startup.Core.csproj" />
     <ProjectReference Include="..\Domain.Concrete\Service.Banking.Domain.Concrete.csproj" />
   </ItemGroup>

@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Castle.Core.Internal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Service.Banking.Domain.Concrete;
+using Service.Banking.Domain.Core;
 using Shared.Repository.Core;
 
 namespace Service.Banking.Repository.EntityFramework
@@ -52,7 +55,7 @@ namespace Service.Banking.Repository.EntityFramework
         internal string GetAmountAdded(ICollection<bool> results)
         {
             return string.Format("Added {0} out of {1}.", results.Where(b => b).Count(), results.Count);
-        } 
+        }
         #endregion
 
         #region Find Query Builders
@@ -78,6 +81,21 @@ namespace Service.Banking.Repository.EntityFramework
         }
         */
 
+        private IQueryable<Person> BuildFindPersonQuery(IPerson p, IQueryable<Person> query)
+        {
+            if (!p.PersonNumber.IsNullOrEmpty())
+                query = query.Where(x => x.PersonNumber.Contains(p.PersonNumber));
+            if (!p.Name.IsNullOrEmpty())
+                query = query.Where(x => x.Name.Contains(p.Name));
+            if (!p.Address.IsNullOrEmpty())
+                query = query.Where(x => x.Address.Contains(p.Address));
+
+            if (p.Id != default(int))
+                query = query.Where(x => x.Id == p.Id);
+
+            return query;
+        }
+
         #endregion
 
         #region Find Multiple Methods
@@ -88,7 +106,7 @@ namespace Service.Banking.Repository.EntityFramework
             if (result.Count() > 0)
                 return new List<T>(result);
             else
-                throw new Exception(string.Format("Found no result for {0}", typeof(T).Name));
+                throw new Exception(string.Format("Found no results for {0}", typeof(T).Name));
         }
         // Create methods for all the different classes, where you should be able to get multiple specific elements.
 
@@ -102,6 +120,14 @@ namespace Service.Banking.Repository.EntityFramework
             return FindMultipleResults(query);
         }
         */
+        internal ICollection<Person> FindMultiplePeople(IPerson p)
+        {
+            var query = repo.Persons.AsQueryable();
+            query = BuildFindPersonQuery(p, query);
+
+            return FindMultipleResults(query);
+        }
+
 
 
         #endregion
@@ -151,6 +177,16 @@ namespace Service.Banking.Repository.EntityFramework
         }        
          */
 
+        internal bool AddPerson(IPerson p)
+        {
+            EntityEntry entry = null;
+            EntityState state = EntityState.Unchanged;
+
+            entry = repo.Add(p);
+
+            state = CheckEntryState(state, entry);
+            return VerifyEntryState(state, EntityState.Added);
+        }
         #endregion
 
         #region Update Methods

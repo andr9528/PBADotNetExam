@@ -11,7 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Service.Ordering", "Service
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{73DEEF48-6E16-4D7F-8B22-904B374F487B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared.Repository.Core", "Shared\Repository.Core\Shared.Repository.Core.csproj", "{D17F454D-BB97-4929-B0B2-000A66A533F9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared.Repository.Core", "Shared\Shared.Repository.Core\Shared.Repository.Core.csproj", "{D17F454D-BB97-4929-B0B2-000A66A533F9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Main.Base.Startup", "Main\Startup.Base\Main.Base.Startup.csproj", "{52B52914-F95F-4348-9AD9-7E8E39121008}"
 EndProject

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text;
 using Service.Banking.Domain.Core;
 
 namespace Main.Domain.Proxies
@@ -11,5 +12,17 @@ namespace Main.Domain.Proxies
         public ICollection<IAccount> Accounts { get; set; }
         public int Id { get; set; }
         public byte[] Version { get; set; }
+
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+
+            builder.Append(Id + "\t");
+            builder.Append(PersonNumber + "\t");
+            builder.Append(Name + "\t");
+            builder.Append(Address + "\t");
+
+            return builder.ToString();
+        }
     }
 }

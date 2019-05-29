@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Castle.Core.Internal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Service.Ordering.Domain.Concrete;
+using Service.Ordering.Domain.Core;
 using Shared.Repository.Core;
 
 namespace Service.Ordering.Repository.EntityFramework
@@ -51,7 +54,7 @@ namespace Service.Ordering.Repository.EntityFramework
         internal string GetAmountAdded(ICollection<bool> results)
         {
             return string.Format("Added {0} out of {1}.", results.Where(b => b).Count(), results.Count);
-        } 
+        }
         #endregion
 
         #region Find Query Builders
@@ -77,6 +80,26 @@ namespace Service.Ordering.Repository.EntityFramework
         }
         */
 
+        private IQueryable<Item> BuildFindItemQuery(IItem i, IQueryable<Item> query)
+        {
+            if (!i.Name.IsNullOrEmpty())
+                query = query.Where(x => x.Name.Contains(i.Name));
+            if (!i.Description.IsNullOrEmpty())
+                query = query.Where(x => x.Description.Contains(i.Description));
+            if (!i.ItemNumber.IsNullOrEmpty())
+                query = query.Where(x => x.ItemNumber.Contains(i.ItemNumber));
+
+            if (i.Id != default(int))
+                query = query.Where(x => x.Id == i.Id);
+            if (i.Amount != default(int))
+                query = query.Where(x => x.Amount== i.Amount);
+
+            if (i.Price != default(double))
+                query = query.Where(x => x.Price == i.Price);
+
+            return query;
+        }
+
         #endregion
 
         #region Find Multiple Methods
@@ -87,7 +110,7 @@ namespace Service.Ordering.Repository.EntityFramework
             if (result.Count() > 0)
                 return new List<T>(result);
             else
-                throw new Exception(string.Format("Found no result for {0}", typeof(T).Name));
+                throw new Exception(string.Format("Found no results for {0}", typeof(T).Name));
         }
         // Create methods for all the different classes, where you should be able to get multiple specific elements.
 
@@ -101,6 +124,14 @@ namespace Service.Ordering.Repository.EntityFramework
             return FindMultipleResults(query);
         }
         */
+
+        internal ICollection<Item> FindMultipleItems(IItem i)
+        {
+            var query = repo.Items.AsQueryable();
+            query = BuildFindItemQuery(i, query);
+
+            return FindMultipleResults(query);
+        }
 
 
         #endregion
@@ -150,6 +181,16 @@ namespace Service.Ordering.Repository.EntityFramework
         }        
          */
 
+        internal bool AddItem(IItem i)
+        {
+            EntityEntry entry = null;
+            EntityState state = EntityState.Unchanged;
+
+            entry = repo.Add(i);
+
+            state = CheckEntryState(state, entry);
+            return VerifyEntryState(state, EntityState.Added);
+        }
         #endregion
 
         #region Update Methods

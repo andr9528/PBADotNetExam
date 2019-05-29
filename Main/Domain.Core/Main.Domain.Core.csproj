@@ -2,10 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Shared\Repository.Core\Shared.Repository.Core.csproj" />
+    <ProjectReference Include="..\..\Shared\Shared.Repository.Core\Shared.Repository.Core.csproj" />
     <ProjectReference Include="..\Main.Domain.Enums\Main.Domain.Enums.csproj" />
   </ItemGroup>
 
