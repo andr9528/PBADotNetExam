@@ -32,6 +32,9 @@ namespace Service.Banking.Repository.EntityFramework
                 case IPerson p:
                     result = AddPerson(p);
                     break;
+                case IAccount a:
+                    result = AddAccount(a);
+                    break;
                 default:
                     throw new Exception("ERROR ERROR ERROR");
             }
@@ -105,6 +108,9 @@ namespace Service.Banking.Repository.EntityFramework
                 //    break;
                 case IPerson p:
                     entities = FindMultiplePeople(p) as ICollection<T>;
+                    break;
+                case IAccount a:
+                    entities = FindMultipleAccounts(a) as ICollection<T>;
                     break;
                 default:
                     throw new Exception("ERROR ERROR ERROR");

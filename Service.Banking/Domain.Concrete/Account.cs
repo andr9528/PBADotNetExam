@@ -1,4 +1,5 @@
-﻿using Service.Banking.Domain.Core;
+﻿using Newtonsoft.Json;
+using Service.Banking.Domain.Core;
 
 namespace Service.Banking.Domain.Concrete
 {
@@ -9,5 +10,17 @@ namespace Service.Banking.Domain.Concrete
         public string AccountNumber { get; set; }
         public int Id { get; set; }
         public byte[] Version { get; set; }
+        public int FK_Owner { get; set; }
+
+        [JsonConstructor]
+        public Account(Person owner)
+        {
+            Owner = owner;
+        }
+
+        public Account()
+        {
+            
+        }
     }
 }

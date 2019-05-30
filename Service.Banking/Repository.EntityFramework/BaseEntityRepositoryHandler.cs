@@ -96,6 +96,32 @@ namespace Service.Banking.Repository.EntityFramework
             return query;
         }
 
+        private IQueryable<Account> BuildFindAccountQuery(IAccount a, IQueryable<Account> query)
+        {
+            if (!a.AccountNumber.IsNullOrEmpty())
+                query = query.Where(x => x.AccountNumber.Contains(a.AccountNumber));
+
+            if (a.Balance!= default(double))
+                query = query.Where(x => x.Balance == a.Balance);
+
+            if (a.Id != default(int))
+                query = query.Where(x => x.Id == a.Id);
+
+            if (a.Owner != null)
+            {
+                if (!a.Owner.PersonNumber.IsNullOrEmpty())
+                    query = query.Where(x => x.Owner. PersonNumber.Contains(a.Owner.PersonNumber));
+                if (!a.Owner.Name.IsNullOrEmpty())
+                    query = query.Where(x => x.Owner.Name.Contains(a.Owner.Name));
+                if (!a.Owner.Address.IsNullOrEmpty())
+                    query = query.Where(x => x.Owner.Address.Contains(a.Owner.Address));
+
+                if (a.Id != default(int))
+                    query = query.Where(x => x.Owner.Id == a.Owner.Id);
+            }
+
+            return query;
+        }
         #endregion
 
         #region Find Multiple Methods
@@ -124,6 +150,14 @@ namespace Service.Banking.Repository.EntityFramework
         {
             var query = repo.Persons.AsQueryable();
             query = BuildFindPersonQuery(p, query);
+
+            return FindMultipleResults(query);
+        }
+
+        internal ICollection<Account> FindMultipleAccounts(IAccount a)
+        {
+            var query = repo.Accounts.Include(x => x.Owner).AsQueryable();
+            query = BuildFindAccountQuery(a, query);
 
             return FindMultipleResults(query);
         }
@@ -183,6 +217,17 @@ namespace Service.Banking.Repository.EntityFramework
             EntityState state = EntityState.Unchanged;
 
             entry = repo.Add(p);
+
+            state = CheckEntryState(state, entry);
+            return VerifyEntryState(state, EntityState.Added);
+        }
+
+        internal bool AddAccount(IAccount a)
+        {
+            EntityEntry entry = null;
+            EntityState state = EntityState.Unchanged;
+
+            entry = repo.Add(a);
 
             state = CheckEntryState(state, entry);
             return VerifyEntryState(state, EntityState.Added);

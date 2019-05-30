@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Service.Banking.Domain.Concrete;
 using Service.Banking.Repository.EntityFramework;
+using Shared.Repository.Core;
 
 namespace Service.Banking.Api.Controllers
 {
@@ -15,17 +16,38 @@ namespace Service.Banking.Api.Controllers
     public class AccountsController : ControllerBase
     {
         private readonly EntityRepository _context;
+        private readonly IGenericRepository _handler;
 
         public AccountsController(EntityRepository context)
         {
             _context = context;
+            _handler = new GenericEntityRepositoryHandler(_context);
         }
 
         // GET: api/Accounts
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Account>>> GetAccounts()
+        public async Task<ActionResult<IEnumerable<Account>>> GetAccounts(Account account)
         {
-            return await _context.Accounts.ToListAsync();
+            try
+            {
+                var results = await Task.Run(async () => _handler.FindMultiple(account));
+
+                return Ok(results);
+            }
+            catch (Exception e)
+            {
+                if (e.Message.Contains("Found no results"))
+                {
+                    return NoContent();
+                }
+                else
+                {
+                    Console.WriteLine(e);
+                    throw e;
+                }
+            }
+
+            //return await _context.Accounts.ToListAsync();
         }
 
         // GET: api/Accounts/5
@@ -86,10 +108,31 @@ namespace Service.Banking.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<Account>> PostAccount(Account account)
         {
-            _context.Accounts.Add(account);
-            await _context.SaveChangesAsync();
+            try
+            {
+                var result = _handler.Add(account);
 
-            return CreatedAtAction("GetAccount", new { id = account.Id }, account);
+                if (result)
+                {
+                    await _context.SaveChangesAsync();
+                    return StatusCode(StatusCodes.Status201Created,
+                        string.Format("Succesfully added Account, Result -> {0}", result));
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status409Conflict, string.Format("Unable to add Account, Result -> {0}", result));
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw e;
+            }
+
+            //_context.Accounts.Add(account);
+            //await _context.SaveChangesAsync();
+
+            //return CreatedAtAction("GetAccount", new { id = account.Id }, account);
         }
 
         // DELETE: api/Accounts/5

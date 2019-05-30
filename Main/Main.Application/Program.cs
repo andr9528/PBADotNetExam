@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -63,47 +64,103 @@ namespace Main.Application
                     return DisplayItems();
                 case 31:
                     return DisplayPeople();
+                case 41:
+                    return DisplayAccounts();
                 case 22:
                     return AddItem();
                 case 32:
                     return AddPerson();
+                case 42:
+                    return AddAccount();
                 default:
                     Console.WriteLine("Inputed value has no matching menu option, Please try again...");
                     return Task.FromResult("Returning");
             }
         }
 
+        #region Add
         private async Task AddPerson()
         {
-            throw new NotImplementedException();
-        }
+            Console.WriteLine("Creating person...");
+            var random = new Random();
 
-        private async Task DisplayPeople()
-        {
-            Console.WriteLine("Displaying all known People...");
+            var personNumber = new StringBuilder();
 
-            List<PersonProxy> people = new List<PersonProxy>();
-            var response = await bankClient.GetByJsonAsync(Controllers.People.ToString(), new PersonProxy());
+            #region PersonNumber Generator
+            int day = 0;
+            var month = random.Next(1, 12);
+            var year = random.Next(0, 99);
+            var finalDigets = random.Next(1, 9999);
 
-            if (response.StatusCode == HttpStatusCode.OK)
+            int[] longMonths = new[] { 1, 3, 5, 7, 8, 10, 12 };
+            int[] shortMonths = new[] { 4, 6, 9, 11 };
+
+            #region Day Setter
+            if (longMonths.Contains(month))
             {
-                people = DeserilizeJson(await response.Content.ReadAsStringAsync(), people);
-
-                var builder = new StringBuilder();
-
-                builder.Append("Id\t");
-                builder.Append("PersonNumber\t");
-                builder.Append("Name\t");
-                builder.Append("Address\t");
-
-                Console.WriteLine(builder.ToString());
-
-                Print(people);
+                day = random.Next(1, 31);
             }
-            else if (response.StatusCode == HttpStatusCode.NoContent)
+            else if (shortMonths.Contains(month))
             {
-                Console.WriteLine("No People exist...");
+                day = random.Next(1, 30);
             }
+            else if (month == 2)
+            {
+                if (year % 4 == 0)
+                {
+                    day = random.Next(1, 29);
+                }
+                else
+                {
+                    day = random.Next(1, 28);
+                }
+            }
+            #endregion
+
+            #region Appender
+            if (day < 10)
+                personNumber.Append(0);
+            personNumber.Append(day);
+
+            if (month < 10)
+                personNumber.Append(0);
+            personNumber.Append(month);
+
+            if (year < 10)
+                personNumber.Append(0);
+            personNumber.Append(year);
+
+            if (finalDigets < 1000)
+            {
+                personNumber.Append(0);
+
+                if (finalDigets < 100)
+                {
+                    personNumber.Append(0);
+
+                    if (finalDigets < 10)
+                    {
+                        personNumber.Append(0);
+                    }
+                }
+            }
+
+            personNumber.Append(finalDigets);
+            #endregion
+
+            #endregion
+
+            Console.WriteLine("Person Name ->");
+            var name = Console.ReadLine();
+
+            Console.WriteLine("Person Address ->");
+            var address = Console.ReadLine();
+
+            var person = new PersonProxy() { Address = address, Name = name, PersonNumber = personNumber.ToString() };
+
+            var response = await bankClient.PostAsJsonAsync(Controllers.People.ToString(), person);
+
+            Console.WriteLine(await response.Content.ReadAsStringAsync());
         }
 
         private async Task AddItem()
@@ -135,7 +192,7 @@ namespace Main.Application
 
                 if (parseAmount == false)
                 {
-                    Console.WriteLine("Unable to parse input to int - Try Again...");
+                    Console.WriteLine("Unable to parse input to 'int' - Try Again...");
                 }
             }
 
@@ -152,17 +209,110 @@ namespace Main.Application
 
                 if (parsePrice == false)
                 {
-                    Console.WriteLine("Unable to parse input to double - Try Again...");
+                    Console.WriteLine("Unable to parse input to 'double' - Try Again...");
                 }
             }
 
-            var item = new ItemProxy() {Amount = amount, Description = description, ItemNumber = itemNumber.ToString(), Name = name, Price = price};
+            var item = new ItemProxy() { Amount = amount, Description = description, ItemNumber = itemNumber.ToString(), Name = name, Price = price };
 
             var response = await orderClient.PostAsJsonAsync(Controllers.Items.ToString(), item);
 
             Console.WriteLine(await response.Content.ReadAsStringAsync());
         }
 
+        private async Task AddAccount()
+        {
+            Console.WriteLine("Creating Account...");
+            var random = new Random();
+
+            Console.WriteLine("Verifying that atleast one person exist...");
+            List<PersonProxy> people = new List<PersonProxy>();
+            var getResponse = await bankClient.GetByJsonAsync(Controllers.People.ToString(), new PersonProxy());
+
+            if (getResponse.StatusCode != HttpStatusCode.NoContent )
+            {
+                people = DeserilizeJson(await getResponse.Content.ReadAsStringAsync(), people);
+
+                var accountNumber = new StringBuilder();
+
+                for (int i = 0; i < 10; i++)
+                {
+                    if (i == 0)
+                        accountNumber.Append(random.Next(1, 9));
+                    else
+                        accountNumber.Append(random.Next(0, 9));
+                }
+
+                bool parseBalance = false;
+                double balance = 0.00;
+                while (parseBalance == false)
+                {
+                    Console.WriteLine("Account Balance ->");
+                    var tmp = Console.ReadLine();
+
+                    tmp = tmp.Replace('.', ',');
+
+                    parseBalance = double.TryParse(tmp, out balance);
+
+                    if (parseBalance == false)
+                    {
+                        Console.WriteLine("Unable to parse input to 'double' - Try Again...");
+                    }
+                }
+
+                PersonProxy owner = null;
+
+                while (owner == null)
+                {
+                    Console.WriteLine("Chose an Owner for the Account...");
+
+                    var builder = new StringBuilder();
+
+                    builder.Append("Pick Number\t");
+                    builder.Append("Name\t");
+
+                    Console.WriteLine(builder.ToString());
+
+                    for (int i = 0; i < people.Count; i++)
+                    {
+                        Console.WriteLine(string.Format("{0} ->\t{1}", i+1, people[i].Name));
+                    }
+
+                    bool parse = false;
+                    int pick = 0;
+                    while (parse == false)
+                    {
+                        Console.WriteLine("Which one do you chose? ->");
+                        var tmp = Console.ReadLine();
+
+                        parse = int.TryParse(tmp, out pick);
+
+                        if (parse == false)
+                        {
+                            Console.WriteLine("Unable to parse input to 'int' - Try Again...");
+                        }
+                    }
+
+                    if (pick <= people.Count && pick > 0)
+                        owner = people[pick - 1];
+                    else
+                        Console.WriteLine("Inputed Number doesn't match any people on the list, try again..."); 
+                }
+
+                var account = new AccountProxy() {AccountNumber = accountNumber.ToString(), Balance = balance, FK_Owner = owner.Id};
+
+                var postResponse = await bankClient.PostAsJsonAsync(Controllers.Accounts.ToString(), account);
+
+                Console.WriteLine(await postResponse.Content.ReadAsStringAsync());
+            }
+            else
+            {
+                Console.WriteLine("No People exist, need at least one to create an Account...");
+            }
+        }
+        #endregion
+
+        #region Display
         private async Task DisplayItems()
         {
             Console.WriteLine("Displaying all known Items...");
@@ -221,6 +371,64 @@ namespace Main.Application
             }
         }
 
+        private async Task DisplayPeople()
+        {
+            Console.WriteLine("Displaying all known People...");
+
+            List<PersonProxy> people = new List<PersonProxy>();
+            var response = await bankClient.GetByJsonAsync(Controllers.People.ToString(), new PersonProxy());
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                people = DeserilizeJson(await response.Content.ReadAsStringAsync(), people);
+
+                var builder = new StringBuilder();
+
+                builder.Append("Id\t");
+                builder.Append("PersonNumber\t");
+                builder.Append("Name\t");
+                builder.Append("Address\t");
+
+                Console.WriteLine(builder.ToString());
+
+                Print(people);
+            }
+            else if (response.StatusCode == HttpStatusCode.NoContent)
+            {
+                Console.WriteLine("No People exist...");
+            }
+        }
+
+        private async Task DisplayAccounts()
+        {
+            Console.WriteLine("Displaying all known Accounts...");
+
+            List<AccountProxy> accounts = new List<AccountProxy>();
+            var response = await bankClient.GetByJsonAsync(Controllers.Accounts.ToString(), new AccountProxy());
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                accounts = DeserilizeJson(await response.Content.ReadAsStringAsync(), accounts);
+
+                var builder = new StringBuilder();
+
+                builder.Append("Id\t");
+                builder.Append("AccountNumber\t");
+                builder.Append("Balance\t");
+                builder.Append("Owner Name\t");
+
+                Console.WriteLine(builder.ToString());
+
+                Print(accounts);
+            }
+            else if (response.StatusCode == HttpStatusCode.NoContent)
+            {
+                Console.WriteLine("No Accounts exist...");
+            }
+
+        }
+        #endregion
+
         private void ShowMenu()
         {
             if (Menu == "")
@@ -232,8 +440,10 @@ namespace Main.Application
                 builder.AppendLine("11 --> Display existing Events");
                 builder.AppendLine("21 --> Display existing Items");
                 builder.AppendLine("31 --> Display existing People");
+                builder.AppendLine("41 --> Display existing Accounts");
                 builder.AppendLine("22 --> Add an Item");
                 builder.AppendLine("32 --> Add a Person");
+                builder.AppendLine("42 --> Add an Account");
                 builder.AppendLine("0 --> Exit Program");
 
                 Menu = builder.ToString();
@@ -264,7 +474,8 @@ namespace Main.Application
                 new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
-        private void Print<T>(List<T> list) where T: class, IEntity
+        #region Helpers
+        private void Print<T>(List<T> list) where T : class, IEntity
         {
             foreach (var entity in list)
             {
@@ -275,6 +486,7 @@ namespace Main.Application
         private List<T> DeserilizeJson<T>(string json, List<T> type)
         {
             return JsonConvert.DeserializeObject<List<T>>(json);
-        }
+        } 
+        #endregion
     }
 }

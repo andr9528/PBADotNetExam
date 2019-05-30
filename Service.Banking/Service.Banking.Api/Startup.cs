@@ -10,6 +10,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using Service.Banking.Domain.Concrete;
+using Service.Banking.Domain.Core;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace Service.Banking.Api
@@ -40,7 +43,10 @@ namespace Service.Banking.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2).AddJsonOptions(options =>
+                {
+                    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                });
             SetupServices(services);
 
             // Register the Swagger generator, defining 1 or more Swagger documents
@@ -49,6 +55,9 @@ namespace Service.Banking.Api
                 c.SwaggerDoc("v1", new Info { Title = "Banking API", Version = "v1" });
                 c.DescribeAllEnumsAsStrings();
             });
+
+            //services.AddTransient(typeof(IPerson), typeof(Person));
+            //services.AddTransient(typeof(IAccount), typeof(Account));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -6,6 +6,7 @@ namespace Service.Banking.Domain.Core
     {
         double Balance { get; set; }
         IPerson Owner { get; set; }
+        int FK_Owner { get; set; }
         string AccountNumber { get; set; }
     }
 }
