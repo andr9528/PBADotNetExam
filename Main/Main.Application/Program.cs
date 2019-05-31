@@ -66,12 +66,16 @@ namespace Main.Application
                     return DisplayPeople();
                 case 41:
                     return DisplayAccounts();
+                case 51:
+                    return DisplayOrders();
                 case 22:
                     return AddItem();
                 case 32:
                     return AddPerson();
                 case 42:
                     return AddAccount();
+                case 52:
+                    return AddOrder();
                 default:
                     Console.WriteLine("Inputed value has no matching menu option, Please try again...");
                     return Task.FromResult("Returning");
@@ -310,6 +314,11 @@ namespace Main.Application
                 Console.WriteLine("No People exist, need at least one to create an Account...");
             }
         }
+
+        private async Task AddOrder()
+        {
+            throw new NotImplementedException();
+        }
         #endregion
 
         #region Display
@@ -427,6 +436,55 @@ namespace Main.Application
             }
 
         }
+
+        private async Task DisplayOrders()
+        {
+            Console.WriteLine("Displaying all known Orders...");
+
+            List<OrderProxy> orders = new List<OrderProxy>();
+            var response = await orderClient.GetByJsonAsync(Controllers.Orders.ToString(), new OrderProxy());
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                orders = DeserilizeJson(await response.Content.ReadAsStringAsync(), orders);
+
+                var orderBuilder = new StringBuilder();
+                #region Order Builder
+                orderBuilder.Append("Id\t");
+                orderBuilder.Append("OrderNumber\t");
+                orderBuilder.Append("Stage\t");
+                orderBuilder.Append("From Account\t");
+                orderBuilder.Append("To Account\t");
+                orderBuilder.Append("Items Count\t"); 
+                #endregion
+
+                var itemBuilder = new StringBuilder();
+                #region Item Builder
+                itemBuilder.Append("\t");
+                itemBuilder.Append("Id\t");
+                itemBuilder.Append("ItemNumber\t");
+                itemBuilder.Append("Name\t");
+                itemBuilder.Append("Price\t");
+                itemBuilder.Append("Amount\t");
+                itemBuilder.Append("Description"); 
+                #endregion
+
+                foreach (var order in orders)
+                {
+                    Console.WriteLine(Environment.NewLine + orderBuilder.ToString());
+                    Console.WriteLine(order.ToString());
+                    Console.WriteLine(string.Format("\t{0}", itemBuilder.ToString()));
+                    foreach (var item in order.Items)
+                    {
+                        Console.WriteLine(string.Format("\t{0}", item.ToString()));
+                    }
+                }
+            }
+            else if (response.StatusCode == HttpStatusCode.NoContent)
+            {
+                Console.WriteLine("No Orders exist...");
+            }
+        }
         #endregion
 
         private void ShowMenu()
@@ -441,9 +499,11 @@ namespace Main.Application
                 builder.AppendLine("21 --> Display existing Items");
                 builder.AppendLine("31 --> Display existing People");
                 builder.AppendLine("41 --> Display existing Accounts");
+                builder.AppendLine("51 --> Display existing Orders");
                 builder.AppendLine("22 --> Add an Item");
                 builder.AppendLine("32 --> Add a Person");
                 builder.AppendLine("42 --> Add an Account");
+                builder.AppendLine("52 --> Add an Order");
                 builder.AppendLine("0 --> Exit Program");
 
                 Menu = builder.ToString();

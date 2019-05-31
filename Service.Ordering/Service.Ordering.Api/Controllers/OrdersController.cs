@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Service.Ordering.Domain.Concrete;
 using Service.Ordering.Repository.EntityFramework;
+using Shared.Repository.Core;
 
 namespace Service.Ordering.Api.Controllers
 {
@@ -15,18 +16,39 @@ namespace Service.Ordering.Api.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly EntityRepository _context;
+        private readonly IGenericRepository _handler;
 
         public OrdersController(EntityRepository context)
         {
             _context = context;
+            _handler = new GenericEntityRepositoryHandler(_context);
 
         }
 
         // GET: api/Orders
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
+        public async Task<ActionResult<IEnumerable<Order>>> GetOrders(Order order)
         {
-            return await _context.Orders.ToListAsync();
+            try
+            {
+                var results = await Task.Run(async () => _handler.FindMultiple(order));
+
+                return Ok(results);
+            }
+            catch (Exception e)
+            {
+                if (e.Message.Contains("Found no results"))
+                {
+                    return NoContent();
+                }
+                else
+                {
+                    Console.WriteLine(e);
+                    throw e;
+                }
+            }
+
+            //return await _context.Orders.ToListAsync();
         }
 
         // GET: api/Orders/5
@@ -91,10 +113,31 @@ namespace Service.Ordering.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<Order>> PostOrder(Order order)
         {
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
+            try
+            {
+                var result = _handler.Add(order);
 
-            return CreatedAtAction("GetOrder", new { id = order.Id }, order);
+                if (result)
+                {
+                    await _context.SaveChangesAsync();
+                    return StatusCode(StatusCodes.Status201Created,
+                        string.Format("Succesfully added Order, Result -> {0}", result));
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status409Conflict, string.Format("Unable to add Order, Result -> {0}", result));
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw e;
+            }
+
+            //_context.Orders.Add(order);
+            //await _context.SaveChangesAsync();
+
+            //return CreatedAtAction("GetOrder", new { id = order.Id }, order);
         }
 
         // DELETE: api/Orders/5

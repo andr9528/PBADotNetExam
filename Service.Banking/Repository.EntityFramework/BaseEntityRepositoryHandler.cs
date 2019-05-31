@@ -148,7 +148,7 @@ namespace Service.Banking.Repository.EntityFramework
         */
         internal ICollection<Person> FindMultiplePeople(IPerson p)
         {
-            var query = repo.Persons.AsQueryable();
+            var query = repo.Persons.Include(x => x.Accounts).AsQueryable();
             query = BuildFindPersonQuery(p, query);
 
             return FindMultipleResults(query);

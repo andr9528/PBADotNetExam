@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using Newtonsoft.Json;
 using Service.Banking.Domain.Core;
 
 namespace Main.Domain.Proxies
@@ -23,6 +24,17 @@ namespace Main.Domain.Proxies
             builder.Append(Address + "\t");
 
             return builder.ToString();
+        }
+
+        [JsonConstructor]
+        public PersonProxy(List<AccountProxy> accounts)
+        {
+            Accounts = (ICollection<IAccount>)accounts;
+        }
+
+        public PersonProxy()
+        {
+            
         }
     }
 }

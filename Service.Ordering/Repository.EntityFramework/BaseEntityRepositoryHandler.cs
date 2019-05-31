@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Service.Ordering.Domain.Concrete;
 using Service.Ordering.Domain.Core;
+using Service.Ordering.Domain.Enums;
 using Shared.Repository.Core;
 
 namespace Service.Ordering.Repository.EntityFramework
@@ -100,6 +101,25 @@ namespace Service.Ordering.Repository.EntityFramework
             return query;
         }
 
+        private IQueryable<Order> BuildFindOrderQuery(IOrder o, IQueryable<Order> query)
+        {
+            if (!o.OrderNumber.IsNullOrEmpty())
+                query = query.Where(x => x.OrderNumber.Contains(o.OrderNumber));
+            if (!o.FromAccount.IsNullOrEmpty())
+                query = query.Where(x => x.FromAccount.Contains(o.FromAccount));
+            if (!o.ToAccount.IsNullOrEmpty())
+                query = query.Where(x => x.ToAccount.Contains(o.ToAccount));
+
+            if (o.Stage != default(OrderStage))
+                query = query.Where(x => x.Stage == o.Stage);
+
+            if (o.Id != default(int))
+                query = query.Where(x => x.Id == o.Id);
+
+
+            return query;
+        }
+
         #endregion
 
         #region Find Multiple Methods
@@ -133,6 +153,15 @@ namespace Service.Ordering.Repository.EntityFramework
             return FindMultipleResults(query);
         }
 
+        internal ICollection<Order> FindMultipleOrders(IOrder o)
+        {
+            var query = repo.Orders.Include(x => x.Items).AsQueryable();
+            query = BuildFindOrderQuery(o, query);
+
+            return FindMultipleResults(query);
+        }
+
+        
 
         #endregion
 
@@ -187,6 +216,17 @@ namespace Service.Ordering.Repository.EntityFramework
             EntityState state = EntityState.Unchanged;
 
             entry = repo.Add(i);
+
+            state = CheckEntryState(state, entry);
+            return VerifyEntryState(state, EntityState.Added);
+        }
+
+        internal bool AddOrder(IOrder o)
+        {
+            EntityEntry entry = null;
+            EntityState state = EntityState.Unchanged;
+
+            entry = repo.Add(o);
 
             state = CheckEntryState(state, entry);
             return VerifyEntryState(state, EntityState.Added);

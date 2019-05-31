@@ -32,6 +32,9 @@ namespace Service.Ordering.Repository.EntityFramework
                 case IItem i:
                     result = AddItem(i);
                     break;
+                case IOrder o:
+                    result = AddOrder(o);
+                    break;
                 default:
                     throw new Exception("ERROR ERROR ERROR");
             }
@@ -106,6 +109,9 @@ namespace Service.Ordering.Repository.EntityFramework
 
                 case IItem i:
                     entities = FindMultipleItems(i) as ICollection<T>;
+                    break;
+                case IOrder o:
+                    entities = FindMultipleOrders(o) as ICollection<T>;
                     break;
                 default:
                     throw new Exception("ERROR ERROR ERROR");
