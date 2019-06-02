@@ -94,9 +94,14 @@ namespace Service.Ordering.Repository.EntityFramework
                 query = query.Where(x => x.Id == i.Id);
             if (i.Amount != default(int))
                 query = query.Where(x => x.Amount== i.Amount);
+            if (i.FK_Order != default(int?))
+                query = query.Where(x => x.FK_Order == i.FK_Order);
 
             if (i.Price != default(double))
                 query = query.Where(x => x.Price == i.Price);
+
+            if (i.Position != default(ItemPosition))
+                query = query.Where(x => x.Position == i.Position);
 
             return query;
         }
@@ -147,7 +152,7 @@ namespace Service.Ordering.Repository.EntityFramework
 
         internal ICollection<Item> FindMultipleItems(IItem i)
         {
-            var query = repo.Items.AsQueryable();
+            var query = repo.Items.Include(x => x.Order).AsQueryable();
             query = BuildFindItemQuery(i, query);
 
             return FindMultipleResults(query);

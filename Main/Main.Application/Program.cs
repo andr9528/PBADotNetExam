@@ -11,6 +11,8 @@ using Main.Domain.Proxies;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using Service.Ordering.Domain.Core;
+using Service.Ordering.Domain.Enums;
 using Shared.Extensions;
 using Shared.Repository.Core;
 
@@ -162,9 +164,9 @@ namespace Main.Application
 
             var person = new PersonProxy() { Address = address, Name = name, PersonNumber = personNumber.ToString() };
 
-            var response = await bankClient.PostAsJsonAsync(Controllers.People.ToString(), person);
+            var response = bankClient.PostAsJsonAsync(Controllers.People.ToString(), person);
 
-            Console.WriteLine(await response.Content.ReadAsStringAsync());
+            Console.WriteLine((await response).Content.ReadAsStringAsync());
         }
 
         private async Task AddItem()
@@ -176,7 +178,10 @@ namespace Main.Application
 
             for (int i = 0; i < 12; i++)
             {
-                itemNumber.Append(random.Next(0, 9));
+                if (i == 0)
+                    itemNumber.Append(random.Next(1, 9));
+                else
+                    itemNumber.Append(random.Next(0, 9));
             }
 
             Console.WriteLine("Item Name ->");
@@ -217,11 +222,11 @@ namespace Main.Application
                 }
             }
 
-            var item = new ItemProxy() { Amount = amount, Description = description, ItemNumber = itemNumber.ToString(), Name = name, Price = price };
+            var item = new ItemProxy() { Amount = amount, Description = description, ItemNumber = itemNumber.ToString(), Name = name, Price = price, Position = ItemPosition.Storage};
 
-            var response = await orderClient.PostAsJsonAsync(Controllers.Items.ToString(), item);
+            var response = orderClient.PostAsJsonAsync(Controllers.Items.ToString(), item);
 
-            Console.WriteLine(await response.Content.ReadAsStringAsync());
+            Console.WriteLine((await response).Content.ReadAsStringAsync());
         }
 
         private async Task AddAccount()
@@ -305,9 +310,9 @@ namespace Main.Application
 
                 var account = new AccountProxy() {AccountNumber = accountNumber.ToString(), Balance = balance, FK_Owner = owner.Id};
 
-                var postResponse = await bankClient.PostAsJsonAsync(Controllers.Accounts.ToString(), account);
+                var postResponse = bankClient.PostAsJsonAsync(Controllers.Accounts.ToString(), account);
 
-                Console.WriteLine(await postResponse.Content.ReadAsStringAsync());
+                Console.WriteLine((await postResponse).Content.ReadAsStringAsync());
             }
             else
             {
@@ -317,8 +322,152 @@ namespace Main.Application
 
         private async Task AddOrder()
         {
+            Console.WriteLine("Creating Order...");
+            var random = new Random();
+
+            var accounts = VerifyAccounts();
+
+            var people = VerifyPeople();
+
+            var items = VerifyItems();
+
+            if ((await people).check & (await accounts).check & (await items).check)
+            {
+                var orderNumber = new StringBuilder();
+
+                for (int i = 0; i < 16; i++)
+                {
+                    if (i == 0)
+                        orderNumber.Append(random.Next(1, 9));
+                    else
+                        orderNumber.Append(random.Next(0, 9));
+                }
+
+                AccountProxy fromAccount = PickAccount((await accounts).accounts);
+                AccountProxy toAccount = PickAccount((await accounts).accounts
+                    .Where(x => x.Owner.PersonNumber != fromAccount.Owner.PersonNumber).ToList());
+
+                List<ItemProxy> orderItems = PickItems((await items).items);
+
+                OrderProxy order = new OrderProxy()
+                {
+                    Items = (ICollection<IItem>) orderItems, OrderNumber = orderNumber.ToString(),
+                    FromAccount = fromAccount.AccountNumber, ToAccount = toAccount.AccountNumber
+                };
+
+                var postResponse = orderClient.PostAsJsonAsync(Controllers.Orders.ToString(), order);
+
+                Console.WriteLine((await postResponse).Content.ReadAsStringAsync());
+            }
+        }
+
+        private List<ItemProxy> PickItems(List<ItemProxy> items)
+        {
             throw new NotImplementedException();
         }
+
+        private AccountProxy PickAccount(List<AccountProxy> accounts)
+        {
+            throw new NotImplementedException();
+        }
+
+        private async Task<(bool check, List<PersonProxy> people)> VerifyPeople()
+        {
+            var people = new List<PersonProxy>();
+            bool check = false;
+
+            var peopleResponse = await bankClient.GetByJsonAsync(Controllers.People.ToString(), new PersonProxy());
+            if (peopleResponse.StatusCode != HttpStatusCode.NoContent)
+            {
+                people = DeserilizeJson(await peopleResponse.Content.ReadAsStringAsync(), people);
+                if (people.Count > 1)
+                {
+                    Console.WriteLine("Enough people exist...");
+                    check = true;
+                }
+                else
+                {
+                    Console.WriteLine("Only one Person exist, need at least two to create an Order...");
+                }
+            }
+            else
+            {
+                Console.WriteLine("No People exist, need at least two to create an Order...");
+            }
+
+            return ValueTuple.Create(check, people);
+        }
+
+        private async Task<(bool check, List<AccountProxy> accounts)> VerifyAccounts()
+        {
+            List<AccountProxy> accounts = new List<AccountProxy>();
+            bool check = false;
+
+            var accountsResponse = await bankClient.GetByJsonAsync(Controllers.Accounts.ToString(), new AccountProxy());
+            if (accountsResponse.StatusCode != HttpStatusCode.NoContent)
+            {
+                accounts = DeserilizeJson(await accountsResponse.Content.ReadAsStringAsync(), accounts);
+                if (accounts.Count > 1)
+                {
+                    int diffrentOwnerscount = 0;
+
+                    for (int x = 0; x < accounts.Count; x++)
+                    {
+                        for (int y = 0; y < accounts.Count; y++)
+                        {
+                            if (x == y)
+                                continue;
+
+                            if (accounts[x].Owner.Name != accounts[y].Owner.Name)
+                                diffrentOwnerscount++;
+                        }
+                    }
+
+                    diffrentOwnerscount = diffrentOwnerscount / 2;
+
+                    if (diffrentOwnerscount >= 2)
+                    {
+                        Console.WriteLine("Enough accounts with diffrent owners exist...");
+                        check = true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Not enough accounts with diffrent owners exist, need at least two with diffrent owners to create an Order...");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Only one Account exist, need at least two with diffrent owners to create an Order...");
+                }
+            }
+            else
+            {
+                Console.WriteLine("No Accounts exist, need at least two to create an Order...");
+            }
+
+            return ValueTuple.Create(check, accounts);
+        }
+
+        private async Task<(bool check, List<ItemProxy> items)> VerifyItems()
+        {
+            List<ItemProxy> items = new List<ItemProxy>();
+            bool check = false;
+
+            var itemsResponse = await orderClient.GetByJsonAsync(Controllers.Items.ToString(), new ItemProxy() { Position = ItemPosition.Storage });
+            if (itemsResponse.StatusCode != HttpStatusCode.NoContent)
+            {
+                items = DeserilizeJson(await itemsResponse.Content.ReadAsStringAsync(), items);
+                Console.WriteLine("Enough Items exist...");
+                check = true;
+            }
+            else
+            {
+                Console.WriteLine("No Items exist, need at least one to create an Order...");
+            }
+
+            return ValueTuple.Create(check, items);
+        }
+
         #endregion
 
         #region Display

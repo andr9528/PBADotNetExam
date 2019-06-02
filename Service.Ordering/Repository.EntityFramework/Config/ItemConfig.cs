@@ -16,7 +16,8 @@ namespace Service.Ordering.Repository.EntityFramework.Config
             builder.Property(x => x.Version).IsRowVersion();
 
             builder.Property(x => x.ItemNumber).IsRequired();
-            builder.HasIndex(x => x.ItemNumber).IsUnique();
+            builder.HasIndex(x => new { x.ItemNumber, x.FK_Order, x.Position}).HasName("Unique").IsUnique();
+            
         }
     }
 }
