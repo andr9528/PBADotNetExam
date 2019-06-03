@@ -166,7 +166,7 @@ namespace Main.Application
 
             var response = bankClient.PostAsJsonAsync(Controllers.People.ToString(), person);
 
-            Console.WriteLine((await response).Content.ReadAsStringAsync());
+            Console.WriteLine(await (await response).Content.ReadAsStringAsync());
         }
 
         private async Task AddItem()
@@ -226,7 +226,7 @@ namespace Main.Application
 
             var response = orderClient.PostAsJsonAsync(Controllers.Items.ToString(), item);
 
-            Console.WriteLine((await response).Content.ReadAsStringAsync());
+            Console.WriteLine(await (await response).Content.ReadAsStringAsync());
         }
 
         private async Task AddAccount()
@@ -271,14 +271,14 @@ namespace Main.Application
 
                 PersonProxy owner = null;
 
+                var builder = new StringBuilder();
+
+                builder.Append("Pick Number\t");
+                builder.Append("Name\t");
+
                 while (owner == null)
                 {
                     Console.WriteLine("Chose an Owner for the Account...");
-
-                    var builder = new StringBuilder();
-
-                    builder.Append("Pick Number\t");
-                    builder.Append("Name\t");
 
                     Console.WriteLine(builder.ToString());
 
@@ -312,7 +312,7 @@ namespace Main.Application
 
                 var postResponse = bankClient.PostAsJsonAsync(Controllers.Accounts.ToString(), account);
 
-                Console.WriteLine((await postResponse).Content.ReadAsStringAsync());
+                Console.WriteLine(await (await postResponse).Content.ReadAsStringAsync());
             }
             else
             {
@@ -327,11 +327,11 @@ namespace Main.Application
 
             var accounts = VerifyAccounts();
 
-            var people = VerifyPeople();
+            //var people = VerifyPeople();
 
             var items = VerifyItems();
 
-            if ((await people).check & (await accounts).check & (await items).check)
+            if (/*(await people).check &*/ (await accounts).check & (await items).check)
             {
                 var orderNumber = new StringBuilder();
 
@@ -343,34 +343,233 @@ namespace Main.Application
                         orderNumber.Append(random.Next(0, 9));
                 }
 
+                Console.WriteLine();
+                Console.WriteLine("First chose the account of the buyer...");
                 AccountProxy fromAccount = PickAccount((await accounts).accounts);
+                Console.WriteLine();
+
+                Console.WriteLine("Secoundly chose the account of the seller...");
                 AccountProxy toAccount = PickAccount((await accounts).accounts
                     .Where(x => x.Owner.PersonNumber != fromAccount.Owner.PersonNumber).ToList());
+                Console.WriteLine();
 
+                Console.WriteLine("Finally chose the items that the buyer wish to buy...");
                 List<ItemProxy> orderItems = PickItems((await items).items);
 
                 OrderProxy order = new OrderProxy()
                 {
-                    Items = (ICollection<IItem>) orderItems, OrderNumber = orderNumber.ToString(),
-                    FromAccount = fromAccount.AccountNumber, ToAccount = toAccount.AccountNumber
+                    Items = new List<IItem>(orderItems), OrderNumber = orderNumber.ToString(),
+                    FromAccount = fromAccount.AccountNumber, ToAccount = toAccount.AccountNumber, Stage = OrderStage.New
                 };
 
                 var postResponse = orderClient.PostAsJsonAsync(Controllers.Orders.ToString(), order);
 
-                Console.WriteLine((await postResponse).Content.ReadAsStringAsync());
+                Console.WriteLine(await (await postResponse).Content.ReadAsStringAsync());
             }
         }
 
+        #region Add Order Methods
         private List<ItemProxy> PickItems(List<ItemProxy> items)
         {
-            throw new NotImplementedException();
+            Console.WriteLine();
+            List<ItemProxy> resultItems = new List<ItemProxy>();
+            int menuPick = -1;
+
+            #region String Builders
+            var builder = new StringBuilder();
+
+            builder.Append("Pick Number\t");
+            builder.Append("Id\t");
+            builder.Append("ItemNumber\t");
+            builder.Append("Name\t");
+            builder.Append("Price\t");
+            builder.Append("Amount\t");
+            builder.Append("Description");
+
+            var menu = new StringBuilder();
+
+            
+            menu.AppendLine("1 --> Buy an Item...");
+            #endregion
+
+            Console.WriteLine("Welcome to Wolf Marked!...");
+            Console.WriteLine("Here is what you can do...");
+
+            do
+            {
+                bool parse = false;
+
+                #region Menu Selection
+
+                if (menuPick != 0)
+                {
+                    
+                    while (parse == false)
+                    {
+                        Console.WriteLine(menu.ToString());
+                        Console.WriteLine("What do you want to do? ->");
+                        var tmp = Console.ReadLine();
+
+                        parse = int.TryParse(tmp, out menuPick);
+
+                        if (parse == false)
+                            Console.WriteLine("Unable to parse input to 'int' - try Again...");
+                    }
+
+                    Console.WriteLine(); 
+                }
+
+                #endregion
+
+                if (menuPick == 1)
+                {
+                    ItemProxy template = null;
+
+                    while (template == null)
+                    {
+                        List<ItemProxy> workList = null;
+
+                        if (resultItems.Count == 0)
+                            workList = items;
+                        else
+                            workList = items.Where(x => resultItems.Any(y => x.ItemNumber != y.ItemNumber)).ToList();
+
+                        Console.WriteLine(builder.ToString());
+
+                        for (int i = 0; i < workList.Count; i++)
+                            Console.WriteLine(string.Format("{0} ->\t{1}", i + 1, workList[i].ToString()));
+                        Console.WriteLine();
+
+                        #region Item to Buy Determinator
+
+                        parse = false;
+                        int pick = 0;
+                        while (parse == false)
+                        {
+                            Console.WriteLine("Which one do you chose? ->");
+                            var tmp = Console.ReadLine();
+
+                            parse = int.TryParse(tmp, out pick);
+
+                            if (parse == false)
+                                Console.WriteLine("Unable to parse input to 'int' - try Again...");
+                        }
+
+                        Console.WriteLine();
+
+                        #endregion
+
+                        if (pick <= workList.Count && pick > 0)
+                            template = workList[pick - 1];
+                        else
+                            Console.WriteLine("Inputed Number doesn't match any people on the list, try again...");
+                    }
+
+                    #region Amount to Buy Determinator
+
+                    parse = false;
+                    int amount = 0;
+                    while (parse == false)
+                    {
+                        Console.WriteLine("How many would you like to buy? ->");
+                        var tmp = Console.ReadLine();
+
+                        parse = int.TryParse(tmp, out amount);
+
+                        if (parse == false)
+                            Console.WriteLine("Unable to parse input to 'int' - try Again...");
+                    }
+
+                    #endregion
+
+                    if (resultItems.Count == 0)
+                        menu.AppendLine("0 --> End Shopping...");
+
+                    resultItems.Add(new ItemProxy()
+                    {
+                        Amount = amount,
+                        Position = ItemPosition.Order,
+                        Name = template.Name,
+                        Description = template.Description,
+                        ItemNumber = template.ItemNumber,
+                        Price = template.Price
+                    });
+
+                    Console.WriteLine();
+                    if (resultItems.Count == items.Count)
+                    {
+                        Console.WriteLine("You have bought somthing of everything we own");
+                        Console.WriteLine("Thanks for shopping at Wolf Marked, hope to see you soon!");
+                        menuPick = 0;
+                    }
+                    else
+	                {
+                        Console.WriteLine("Continue shopping or are you done?..."); 
+                    }
+                }
+                else if (menuPick == 0 & resultItems.Count != 0)
+                {
+                    Console.WriteLine("Thanks for shopping at Wolf Marked, hope to see you soon!");
+                }
+                else
+                {
+                    Console.WriteLine("Unknown menu selection, try again...");
+                }
+            } while (menuPick != 0);
+
+            return resultItems;
         }
 
         private AccountProxy PickAccount(List<AccountProxy> accounts)
         {
-            throw new NotImplementedException();
+            AccountProxy result = null;
+
+            var builder = new StringBuilder();
+
+            builder.Append("Pick Number\t");
+            builder.Append("Id\t");
+            builder.Append("AccountNumber\t");
+            builder.Append("Balance\t");
+            builder.Append("Owner Name\t");
+
+            while (result == null)
+            {
+                Console.WriteLine(builder.ToString());
+
+                for (int i = 0; i < accounts.Count; i++)
+                {
+                    Console.WriteLine(string.Format("{0} ->\t{1}", i + 1, accounts[i].ToString()));
+                }
+
+                bool parse = false;
+                int pick = 0;
+                while (parse == false)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("Which one do you chose? ->");
+                    var tmp = Console.ReadLine();
+
+                    parse = int.TryParse(tmp, out pick);
+
+                    if (parse == false)
+                    {
+                        Console.WriteLine("Unable to parse input to 'int' - Try Again...");
+                    }
+                }
+
+                if (pick <= accounts.Count && pick > 0)
+                    result = accounts[pick - 1];
+                else
+                    Console.WriteLine("Inputed Number doesn't match any people on the list, try again...");
+            }
+
+            return result;
         }
 
+        /// <summary>
+        /// Unused
+        /// </summary>
+        /// <returns></returns>
         private async Task<(bool check, List<PersonProxy> people)> VerifyPeople()
         {
             var people = new List<PersonProxy>();
@@ -466,7 +665,8 @@ namespace Main.Application
             }
 
             return ValueTuple.Create(check, items);
-        }
+        } 
+        #endregion
 
         #endregion
 
@@ -591,7 +791,7 @@ namespace Main.Application
             Console.WriteLine("Displaying all known Orders...");
 
             List<OrderProxy> orders = new List<OrderProxy>();
-            var response = await orderClient.GetByJsonAsync(Controllers.Orders.ToString(), new OrderProxy());
+            var response = await orderClient.GetByJsonAsync(Controllers.Orders.ToString(), new OrderProxy() {Items = new List<IItem>()});
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
@@ -609,7 +809,6 @@ namespace Main.Application
 
                 var itemBuilder = new StringBuilder();
                 #region Item Builder
-                itemBuilder.Append("\t");
                 itemBuilder.Append("Id\t");
                 itemBuilder.Append("ItemNumber\t");
                 itemBuilder.Append("Name\t");
@@ -622,6 +821,7 @@ namespace Main.Application
                 {
                     Console.WriteLine(Environment.NewLine + orderBuilder.ToString());
                     Console.WriteLine(order.ToString());
+                    Console.WriteLine();
                     Console.WriteLine(string.Format("\t{0}", itemBuilder.ToString()));
                     foreach (var item in order.Items)
                     {

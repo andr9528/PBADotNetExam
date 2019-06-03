@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 using Service.Ordering.Domain.Core;
 using Service.Ordering.Domain.Enums;
 
@@ -13,5 +14,16 @@ namespace Service.Ordering.Domain.Concrete
         public OrderStage Stage { get; set; }
         public string FromAccount { get; set; }
         public string ToAccount { get; set; }
+
+        [JsonConstructor]
+        public Order(List<Item> items)
+        {
+            Items = new List<IItem>(items);
+        }
+
+        public Order()
+        {
+            
+        }
     }
 }

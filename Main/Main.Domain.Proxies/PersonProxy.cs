@@ -29,7 +29,7 @@ namespace Main.Domain.Proxies
         [JsonConstructor]
         public PersonProxy(List<AccountProxy> accounts)
         {
-            Accounts = (ICollection<IAccount>)accounts;
+            Accounts = new List<IAccount>(accounts);
         }
 
         public PersonProxy()

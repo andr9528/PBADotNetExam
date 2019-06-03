@@ -33,7 +33,7 @@ namespace Main.Domain.Proxies
         [JsonConstructor]
         public OrderProxy(List<ItemProxy> items)
         {
-            Items = (ICollection<IItem>)items;
+            Items = new List<IItem>(items);
         }
 
         public OrderProxy()
