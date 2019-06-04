@@ -4,6 +4,6 @@
     {
         Null,
         Banking,
-        Order
+        Ordering
     }
 }

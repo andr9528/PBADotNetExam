@@ -256,6 +256,27 @@ namespace Service.Ordering.Repository.EntityFramework
         }        
          */
 
+        internal bool UpdateOrder(IOrder o)
+        {
+            EntityEntry entry = null;
+            EntityState state = EntityState.Unchanged;
+
+            entry = repo.Update(o);
+
+            state = CheckEntryState(state, entry);
+            return VerifyEntryState(state, EntityState.Modified);
+        }
+
+        internal bool UpdateItem(IItem i)
+        {
+            EntityEntry entry = null;
+            EntityState state = EntityState.Unchanged;
+
+            entry = repo.Update(i);
+
+            state = CheckEntryState(state, entry);
+            return VerifyEntryState(state, EntityState.Modified);
+        }
         #endregion
 
         #region Delete Methods

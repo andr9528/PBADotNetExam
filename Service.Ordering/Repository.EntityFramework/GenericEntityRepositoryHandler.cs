@@ -136,6 +136,12 @@ namespace Service.Ordering.Repository.EntityFramework
                 // case IYourDomainClass y:
                 //    result = UpdateYourDomainClass(y);
                 //    break;
+                case IOrder o:
+                    result = UpdateOrder(o);
+                    break;
+                case IItem i:
+                    result = UpdateItem(i);
+                    break;
                 default:
                     throw new Exception("ERROR ERROR ERROR");
             }

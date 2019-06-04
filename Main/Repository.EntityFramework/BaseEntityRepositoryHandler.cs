@@ -168,6 +168,17 @@ namespace Main.Repository.EntityFramework
         }        
          */
 
+        internal bool AddEvent(IEvent e)
+        {
+            EntityEntry entry = null;
+            EntityState state = EntityState.Unchanged;
+
+            entry = repo.Add(e);
+
+            state = CheckEntryState(state, entry);
+            return VerifyEntryState(state, EntityState.Added);
+        }
+
         #endregion
 
         #region Update Methods
@@ -188,6 +199,16 @@ namespace Main.Repository.EntityFramework
         }        
          */
 
+        internal bool UpdateEvent(IEvent e)
+        {
+            EntityEntry entry = null;
+            EntityState state = EntityState.Unchanged;
+
+            entry = repo.Update(e);
+
+            state = CheckEntryState(state, entry);
+            return VerifyEntryState(state, EntityState.Modified);
+        }
         #endregion
 
         #region Delete Methods

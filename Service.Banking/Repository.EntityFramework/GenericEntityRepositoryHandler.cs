@@ -88,6 +88,9 @@ namespace Service.Banking.Repository.EntityFramework
                 // case IYourDomainClass y:
                 //    entity = FindYourDomainClass(y);
                 //    break;
+                case IAccount a:
+                    entity = FindAccount(a);
+                    break;
                 default:
                     throw new Exception("ERROR ERROR ERROR");
             }
@@ -135,6 +138,9 @@ namespace Service.Banking.Repository.EntityFramework
                 // case IYourDomainClass y:
                 //    result = UpdateYourDomainClass(y);
                 //    break;
+                case IAccount a:
+                    result = UpdateAccount(a);
+                    break;
                 default:
                     throw new Exception("ERROR ERROR ERROR");
             }

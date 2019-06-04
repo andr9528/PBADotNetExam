@@ -29,6 +29,9 @@ namespace Main.Repository.EntityFramework
                 // case IYourDomainClass y:
                 //    result = AddYourDomainClass(y);
                 //    break;
+                case IEvent e:
+                    result = AddEvent(e);
+                    break;
 
                 default:
                     throw new Exception("ERROR ERROR ERROR");
@@ -125,6 +128,9 @@ namespace Main.Repository.EntityFramework
                 // case IYourDomainClass y:
                 //    result = UpdateYourDomainClass(y);
                 //    break;
+                case IEvent e:
+                    result = UpdateEvent(e);
+                    break;
                 default:
                     throw new Exception("ERROR ERROR ERROR");
             }

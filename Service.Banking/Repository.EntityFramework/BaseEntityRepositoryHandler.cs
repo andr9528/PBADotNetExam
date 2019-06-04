@@ -190,7 +190,13 @@ namespace Service.Banking.Repository.EntityFramework
             return FindAResult(query);
         }
         */
+        internal IAccount FindAccount(IAccount a)
+        {
+            var query = repo.Accounts.Include(x => x.Owner).AsQueryable();
+            query = BuildFindAccountQuery(a, query);
 
+            return FindAResult(query);
+        }
         #endregion
 
         #region Add Methods
@@ -251,7 +257,16 @@ namespace Service.Banking.Repository.EntityFramework
             return VerifyEntryState(state, EntityState.Modified);
         }        
          */
+        internal bool UpdateAccount(IAccount a)
+        {
+            EntityEntry entry = null;
+            EntityState state = EntityState.Unchanged;
 
+            entry = repo.Update(a);
+
+            state = CheckEntryState(state, entry);
+            return VerifyEntryState(state, EntityState.Modified);
+        }
         #endregion
 
         #region Delete Methods

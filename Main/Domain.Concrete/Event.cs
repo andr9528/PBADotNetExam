@@ -3,16 +3,18 @@ using System.Collections.Generic;
 using System.Text;
 using Main.Domain.Core;
 using Main.Domain.Enums;
+using Newtonsoft.Json;
 
 namespace Main.Domain.Concrete
 {
     public class Event : IEvent
     {
-        public string Description { get; set; }
+        public string DatasAsString { get; set; }
         public EventStage Stage { get; set; }
         public ICollection<IRollbackData> RollbackDatas { get; set; }
         public int Id { get; set; }
         public byte[] Version { get; set; }
+        public string OrderNumber { get; set; }
 
         public override string ToString()
         {
@@ -20,10 +22,21 @@ namespace Main.Domain.Concrete
 
             builder.Append(Id + "\t");
             builder.Append(Stage + "\t");
-            builder.Append(Description + "\t");
+            builder.Append(OrderNumber + "\t");
+            builder.Append(DatasAsString + "\t");
 
             return builder.ToString();
         }
 
+        [JsonConstructor]
+        public Event(List<RollbackData> data)
+        {
+            RollbackDatas = new List<IRollbackData>(data);
+        }
+
+        public Event()
+        {
+            
+        }
     }
 }

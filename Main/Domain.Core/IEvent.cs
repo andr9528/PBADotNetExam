@@ -6,7 +6,8 @@ namespace Main.Domain.Core
 {
     public interface IEvent : IEntity
     {
-        string Description { get; set; }
+        string OrderNumber { get; set; }
+        string DatasAsString { get; set; }
         EventStage Stage { get; set; }
         ICollection<IRollbackData> RollbackDatas { get; set; }
     }

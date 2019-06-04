@@ -73,35 +73,90 @@ namespace Service.Banking.Api.Controllers
                 return account;
             }
         }
+        //[HttpPut]
+        //public async Task<IActionResult> Transfer((string from, string to, double amount) input)
+        //{
+        //    try
+        //    {
+        //        var fromAccount = _handler.Find(new Account() {AccountNumber = input.from});
+        //        var toAccount = _handler.Find(new Account() {AccountNumber = input.to });
 
-        // PUT: api/Accounts/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutAccount(int id, Account account)
+        //        fromAccount.Balance = fromAccount.Balance - input.amount;
+        //        toAccount.Balance = toAccount.Balance + input.amount;
+
+        //        var fromAccountResult = _handler.Update(fromAccount);
+        //        var toAccountResult = _handler.Update(toAccount);
+
+        //        if (fromAccountResult & toAccountResult) 
+        //        {
+        //            await _context.SaveChangesAsync();
+        //            return StatusCode(StatusCodes.Status202Accepted,
+        //                string.Format("Succesfully transfered money between Accounts, FromResult -> {0}, ToResult -> {1}",
+        //                    fromAccountResult, toAccountResult));
+        //        }
+        //        else
+        //        {
+        //            return StatusCode(StatusCodes.Status409Conflict,
+        //                string.Format("Unable to transfered money between Accounts, FromResult -> {0}, ToResult -> {1}", fromAccountResult,
+        //                    toAccountResult));
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Console.WriteLine(e);
+        //        throw;
+        //    }
+        //}
+
+        // PUT: api/Accounts/
+        [HttpPut/*("{id}")*/]
+        public async Task<IActionResult> PutAccount(Account account)
         {
-            if (id != account.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(account).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!AccountExists(id))
+                var result = _handler.Update(account);
+
+                if (result)
                 {
-                    return NotFound();
+                    await _context.SaveChangesAsync();
+                    return StatusCode(StatusCodes.Status202Accepted,
+                        string.Format("Succesfully updated Account, Result -> {0}", result));
                 }
                 else
                 {
-                    throw;
+                    return StatusCode(StatusCodes.Status409Conflict, string.Format("Unable to update Account, Result -> {0}", result));
                 }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
 
-            return NoContent();
+            //if (id != account.Id)
+            //{
+            //    return BadRequest();
+            //}
+
+            //_context.Entry(account).State = EntityState.Modified;
+
+            //try
+            //{
+            //    await _context.SaveChangesAsync();
+            //}
+            //catch (DbUpdateConcurrencyException)
+            //{
+            //    if (!AccountExists(id))
+            //    {
+            //        return NotFound();
+            //    }
+            //    else
+            //    {
+            //        throw;
+            //    }
+            //}
+
+            //return NoContent();
         }
 
         // POST: api/Accounts

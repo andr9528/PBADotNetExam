@@ -76,33 +76,54 @@ namespace Service.Ordering.Api.Controllers
         }
 
         // PUT: api/Items/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutItem(int id, Item item)
+        [HttpPut/*("{id}")*/]
+        public async Task<IActionResult> PutItem(Item item)
         {
-            if (id != item.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(item).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ItemExists(id))
+                var result = _handler.Update(item);
+
+                if (result)
                 {
-                    return NotFound();
+                    await _context.SaveChangesAsync();
+                    return StatusCode(StatusCodes.Status202Accepted,
+                        string.Format("Succesfully updated Item, Result -> {0}", result));
                 }
                 else
                 {
-                    throw;
+                    return StatusCode(StatusCodes.Status409Conflict, string.Format("Unable to update Item, Result -> {0}", result));
                 }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
 
-            return NoContent();
+            //if (id != item.Id)
+            //{
+            //    return BadRequest();
+            //}
+
+            //_context.Entry(item).State = EntityState.Modified;
+
+            //try
+            //{
+            //    await _context.SaveChangesAsync();
+            //}
+            //catch (DbUpdateConcurrencyException)
+            //{
+            //    if (!ItemExists(id))
+            //    {
+            //        return NotFound();
+            //    }
+            //    else
+            //    {
+            //        throw;
+            //    }
+            //}
+
+            //return NoContent();
         }
 
         // POST: api/Items

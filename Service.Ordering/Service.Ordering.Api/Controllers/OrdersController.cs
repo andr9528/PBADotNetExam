@@ -80,33 +80,55 @@ namespace Service.Ordering.Api.Controllers
         }
 
         // PUT: api/Orders/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutOrder(int id, Order order)
+        [HttpPut/*("{id}")*/]
+        public async Task<IActionResult> PutOrder(Order order)
         {
-            if (id != order.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(order).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!OrderExists(id))
+                var result = _handler.Update(order);
+
+                if (result)
                 {
-                    return NotFound();
+                    await _context.SaveChangesAsync();
+                    return StatusCode(StatusCodes.Status202Accepted,
+                        string.Format("Succesfully updated Order, Result -> {0}", result));
                 }
                 else
                 {
-                    throw;
+                    return StatusCode(StatusCodes.Status409Conflict, string.Format("Unable to update Order, Result -> {0}", result));
                 }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+            
+            
+            //if (id != order.Id)
+            //{
+            //    return BadRequest();
+            //}
 
-            return NoContent();
+            //_context.Entry(order).State = EntityState.Modified;
+
+            //try
+            //{
+            //    await _context.SaveChangesAsync();
+            //}
+            //catch (DbUpdateConcurrencyException)
+            //{
+            //    if (!OrderExists(id))
+            //    {
+            //        return NotFound();
+            //    }
+            //    else
+            //    {
+            //        throw;
+            //    }
+            //}
+
+            //return NoContent();
         }
 
         // POST: api/Orders
