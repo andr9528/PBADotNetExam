@@ -218,7 +218,7 @@ namespace Main.Application
                             else
                             {
                                 Console.WriteLine("Something went wrong updating the item stock, rolling back");
-                                await StockUpdate(update.changes);
+                                @event = await StockUpdate(update.changes, @event);
                                 @event = (await Transfer(@event, true)).@event;
                             }
                         }
@@ -247,9 +247,50 @@ namespace Main.Application
 
         }
 
-        private async Task StockUpdate(List<IRollbackData> changes)
+        private async Task<IEvent> StockUpdate(List<IRollbackData> changes, IEvent @event)
         {
-            
+            int count = 0;
+
+            foreach (var data in changes)
+            {
+                var itemRequest = await orderClient.GetByJsonAsync(Controllers.Items.ToString(),
+                    new ItemProxy() { ItemNumber = data.Number, Position = ItemPosition.Storage });
+
+                if (itemRequest.StatusCode == HttpStatusCode.OK)
+                {
+                    var item = DeserilizeJson<ItemProxy>(await itemRequest.Content.ReadAsStringAsync()).FirstOrDefault();
+
+                    item.Amount = (int)(item.Amount + data.Value);
+
+                    var itemUpdate = await orderClient.PutAsJsonAsync(Controllers.Items.ToString(), item);
+
+                    if (itemUpdate.StatusCode == HttpStatusCode.Accepted)
+                    {
+                        count++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    @event = await UpdateEvent("Update Stock Failed - Unable to locate Item", EventStage.TotalFailure, @event);
+
+                    return @event;
+                }
+            }
+
+            if (count == changes.Count)
+            {
+                @event = await UpdateEvent("Update Stock Successful - Stock Rollback Completed", EventStage.Rollbacked, @event);
+
+                return @event;
+            }
+            else
+            {
+                @event = await UpdateEvent("Update Stock Failed - Failed to Update an Item", EventStage.TotalFailure, @event);
+            }
         }
 
         private async Task<(IEvent @event, List<IRollbackData> changes)> StockUpdate(IEvent @event)
