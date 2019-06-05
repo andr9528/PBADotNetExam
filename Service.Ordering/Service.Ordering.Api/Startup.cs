@@ -44,6 +44,7 @@ namespace Service.Ordering.Api
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2).AddJsonOptions(options =>
             {
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                options.SerializerSettings.Formatting = Formatting.Indented;
             }); 
             SetupServices(services);
 
@@ -80,6 +81,8 @@ namespace Service.Ordering.Api
 
             app.UseHttpsRedirection();
             app.UseMvc();
+
+
         }
     }
 }

@@ -11,7 +11,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Main.Base.Startup;
+using Main.Domain.Concrete;
+using Main.Domain.Core;
 using Swashbuckle.AspNetCore.Swagger;
+using Newtonsoft.Json;
 
 namespace Main.Api
 {
@@ -41,7 +44,11 @@ namespace Main.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2).AddJsonOptions(options =>
+            {
+                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                options.SerializerSettings.Formatting = Formatting.Indented;
+            });
             SetupServices(services);
 
             // Register the Swagger generator, defining 1 or more Swagger documents
@@ -50,6 +57,8 @@ namespace Main.Api
                 c.SwaggerDoc("v1", new Info { Title = "Event Store API", Version = "v1" });
                 c.DescribeAllEnumsAsStrings();
             });
+
+            services.AddTransient(typeof(IRollbackData), typeof(RollbackData));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

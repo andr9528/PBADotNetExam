@@ -38,7 +38,7 @@ namespace Main.Domain.Proxies
 
         public OrderProxy()
         {
-            
+            Items = new List<IItem>();
         }
     }
 }

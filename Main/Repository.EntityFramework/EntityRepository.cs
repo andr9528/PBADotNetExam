@@ -23,6 +23,7 @@ namespace Main.Repository.EntityFramework
         // e.g
         // public virtual DbSet<YourDomainClass> YourDomainClassInPlural { get; set; }
         public virtual DbSet<Event> Events { get; set; }
+        public virtual DbSet<RollbackData> RollbackDatas { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

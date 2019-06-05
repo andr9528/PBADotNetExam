@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Castle.Core.Internal;
 using Main.Domain.Concrete;
 using Main.Domain.Core;
+using Main.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Shared.Repository.Core;
+using Action = Main.Domain.Enums.Action;
 
 namespace Main.Repository.EntityFramework
 {
@@ -85,6 +88,33 @@ namespace Main.Repository.EntityFramework
             if (e.Id != default(int))
                 query = query.Where(x => x.Id == e.Id);
 
+            if (e.Stage != default(EventStage))
+                query = query.Where(x => x.Stage == e.Stage);
+
+            if (!e.OrderNumber.IsNullOrEmpty())
+                query = query.Where(x => x.OrderNumber.Contains(e.OrderNumber));
+            if (!e.DatasAsString.IsNullOrEmpty())
+                query = query.Where(x => x.DatasAsString.Contains(e.DatasAsString));
+
+
+            return query;
+        }
+        private IQueryable<RollbackData> BuildFindRollbackDataQuery(IRollbackData r, IQueryable<RollbackData> query)
+        {
+            if (r.Id != default(int))
+                query = query.Where(x => x.Id == r.Id);
+
+            if (r.Action != default(Action))
+                query = query.Where(x => x.Action == r.Action);
+            if (r.Service != default(Services))
+                query = query.Where(x => x.Service == r.Service);
+
+            if (r.Value != default(double))
+                query = query.Where(x => x.Value == r.Value);
+
+            if(!r.Number.IsNullOrEmpty())
+                query = query.Where(x => x.Number.Contains(r.Number));
+
             return query;
         }
 
@@ -115,11 +145,20 @@ namespace Main.Repository.EntityFramework
 
         internal ICollection<Event> FindMultipleEvents(IEvent e)
         {
-            var query = repo.Events.AsQueryable();
+            var query = repo.Events.Include(x => x.RollbackDatas).AsQueryable();
             query = BuildFindEventQuery(e, query);
 
             return FindMultipleResults(query);
         }
+        internal ICollection<RollbackData> FindMultipleRollbackDatas(IRollbackData r)
+        {
+            var query = repo.RollbackDatas.Include(x => x.Event).AsQueryable();
+            query = BuildFindRollbackDataQuery(r, query);
+
+            return FindMultipleResults(query);
+        }
+
+        
 
         #endregion
 
@@ -178,7 +217,16 @@ namespace Main.Repository.EntityFramework
             state = CheckEntryState(state, entry);
             return VerifyEntryState(state, EntityState.Added);
         }
+        internal bool AddRollbackData(IRollbackData r)
+        {
+            EntityEntry entry = null;
+            EntityState state = EntityState.Unchanged;
 
+            entry = repo.Add(r);
+
+            state = CheckEntryState(state, entry);
+            return VerifyEntryState(state, EntityState.Added);
+        }
         #endregion
 
         #region Update Methods
@@ -209,6 +257,16 @@ namespace Main.Repository.EntityFramework
             state = CheckEntryState(state, entry);
             return VerifyEntryState(state, EntityState.Modified);
         }
+        internal bool UpdateRollbackData(IRollbackData r)
+        {
+            EntityEntry entry = null;
+            EntityState state = EntityState.Unchanged;
+
+            entry = repo.Update(r);
+
+            state = CheckEntryState(state, entry);
+            return VerifyEntryState(state, EntityState.Modified);
+        }
         #endregion
 
         #region Delete Methods
@@ -228,7 +286,16 @@ namespace Main.Repository.EntityFramework
             return VerifyEntryState(state, EntityState.Deleted);
         }        
          */
+        internal bool DeleteEvent(IEvent e)
+        {
+            EntityEntry entry = null;
+            EntityState state = EntityState.Unchanged;
 
+            entry = repo.Remove(e);
+
+            state = CheckEntryState(state, entry);
+            return VerifyEntryState(state, EntityState.Deleted);
+        }
         #endregion
     }
 }

@@ -16,7 +16,7 @@ namespace Main.Repository.EntityFramework.Config
             // Defining Version as RowVersion -->
             builder.Property(x => x.Version).IsRowVersion();
 
-            builder.HasMany(x => (ICollection<RollbackData>)x.RollbackDatas).WithOne().IsRequired();
+            builder.HasMany(x => (ICollection<RollbackData>)x.RollbackDatas).WithOne(x => (Event)x.Event).HasForeignKey(x => x.FK_Event).IsRequired();
         }
     }
 }

@@ -147,22 +147,36 @@ namespace Main.Application
             if (orderUpdate1.StatusCode == HttpStatusCode.Accepted)
             {
                 Console.WriteLine("Creating Event...");
+
                 #region Create Event
+
                 double totalPrice = 0;
                 foreach (var item in order.Items)
                 {
                     totalPrice = totalPrice + (item.Price * item.Amount);
                 }
 
-                var datas = new List<RollbackData>()
+                var datas = new List<IRollbackData>()
                 {
-                    new RollbackData() { Action = Action.Decrease, Number = order.FromAccount, Value = totalPrice, Service = Services.Banking},
-                    new RollbackData() { Action = Action.Increase, Number = order.ToAccount, Value = totalPrice, Service = Services.Banking}
+                    new RollbackData()
+                    {
+                        Action = Action.Decrease, Number = order.FromAccount, Value = totalPrice,
+                        Service = Services.Banking
+                    },
+                    new RollbackData()
+                    {
+                        Action = Action.Increase, Number = order.ToAccount, Value = totalPrice,
+                        Service = Services.Banking
+                    }
                 };
 
                 foreach (var item in order.Items)
                 {
-                    datas.Add(new RollbackData() { Action = Action.Decrease, Number = item.ItemNumber, Value = item.Amount, Service = Services.Ordering });
+                    datas.Add(new RollbackData()
+                    {
+                        Action = Action.Decrease, Number = item.ItemNumber, Value = item.Amount,
+                        Service = Services.Ordering
+                    });
                 }
 
                 var dataString = new StringBuilder();
@@ -170,13 +184,14 @@ namespace Main.Application
                 foreach (var data in datas)
                 {
                     dataString.AppendLine(data.ToString());
-                } 
+                }
+
                 #endregion
 
                 @event = new Event()
                 {
                     Stage = EventStage.TransferMoney, OrderNumber = order.OrderNumber,
-                    RollbackDatas = new List<IRollbackData>(datas), DatasAsString = dataString.ToString()
+                    DatasAsString = dataString.ToString()
                 };
 
                 Console.WriteLine("Adding the new Event to Database...");
@@ -184,69 +199,113 @@ namespace Main.Application
 
                 if (createEvent.StatusCode == HttpStatusCode.Created)
                 {
-                    Console.WriteLine("Getting the new Event from Database with the Id, that is required to continue...");
-                    var getEvent = await mainClient.GetByJsonAsync(Controllers.Events.ToString(),
-                        new Event() {OrderNumber = @event.OrderNumber, RollbackDatas = new List<IRollbackData>()});
+                    Console.WriteLine(
+                        "Getting the new Event from Database with the Id, that is required to continue...");
+                    var getEvent1 = await mainClient.GetByJsonAsync(Controllers.Events.ToString(), @event);
 
-                    if (getEvent.StatusCode == HttpStatusCode.OK)
+                    if (getEvent1.StatusCode == HttpStatusCode.OK)
                     {
-                        @event = DeserilizeJson<Event>(await getEvent.Content.ReadAsStringAsync())
-                            .Find(x => x.OrderNumber == @event.OrderNumber);
+                        @event = DeserilizeJson<Event>(await getEvent1.Content.ReadAsStringAsync()).Last();
 
-                        var transfer = (await Transfer(@event));
-                        @event = transfer.@event;
+                        int successCount = 0;
 
-                        if (@event.Stage == EventStage.StockUpdate)
+                        foreach (var data in datas)
                         {
-                            var update = (await StockUpdate(@event));
-                            @event = update.@event;
+                            data.FK_Event = @event.Id;
 
-                            if (@event.Stage == EventStage.Completed)
+                            var addRollbackData =
+                                await mainClient.PostAsJsonAsync(Controllers.RollbackDatas.ToString(), data);
+
+                            if (addRollbackData.StatusCode == HttpStatusCode.Created)
+                                successCount++;
+                            else
+                                break;
+                        }
+
+                        if (successCount == datas.Count)
+                        {
+                            var getEvent2 = await mainClient.GetByJsonAsync(Controllers.Events.ToString(), @event);
+
+                            if (getEvent2.StatusCode == HttpStatusCode.OK)
                             {
-                                order.Stage = OrderStage.Completed;
-                                var orderUpdate2 = await orderClient.PutAsJsonAsync(Controllers.Orders.ToString(), order);
+                                @event = DeserilizeJson<Event>(await getEvent2.Content.ReadAsStringAsync()).Last();
 
-                                if (orderUpdate2.StatusCode == HttpStatusCode.Accepted)
+                                var transfer = (await Transfer(@event));
+                                @event = transfer.@event;
+
+                                if (@event.Stage == EventStage.StockUpdate)
                                 {
-                                    Console.WriteLine("Completed processing of Order {0}", order.OrderNumber);
+                                    var update = (await StockUpdate(@event));
+                                    @event = update.@event;
+
+                                    if (@event.Stage == EventStage.Completed)
+                                    {
+                                        var orderResponse1 = await orderClient.GetByJsonAsync(Controllers.Orders.ToString(), order);
+
+                                        order = DeserilizeJson<OrderProxy>(await orderResponse1.Content.ReadAsStringAsync()).First();
+
+                                        order.Stage = OrderStage.Completed;
+                                        var orderUpdate2 =
+                                            await orderClient.PutAsJsonAsync(Controllers.Orders.ToString(), order);
+
+                                        if (orderUpdate2.StatusCode == HttpStatusCode.Accepted)
+                                        {
+                                            Console.WriteLine($"Completed processing of Order {order.OrderNumber}");
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine(
+                                                $"Something went wrong updating Stage of Order {order.OrderNumber} to Completed. --> {await orderUpdate2.Content.ReadAsStringAsync()}");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("Something went wrong updating the item stock, rolling back");
+                                        @event = await StockUpdate(update.changes, @event);
+                                        @event = (await Transfer(@event, true)).@event;
+                                    }
                                 }
                                 else
                                 {
-                                    Console.WriteLine("Something went wrong updating Stage of Order {0} to Completed. --> {1}", order.OrderNumber, await orderUpdate2.Content.ReadAsStringAsync());
-                                }
+                                    Console.WriteLine("Something went wrong transfering money, rolling back");
+                                    if (transfer.data == null)
+                                    {
+                                        @event = (await Transfer(@event, true)).@event;
+                                    }
+                                    else
+                                    {
+                                        @event = await Transfer(transfer.data, @event);
+                                    }
+                                } 
                             }
                             else
-                            {
-                                Console.WriteLine("Something went wrong updating the item stock, rolling back");
-                                @event = await StockUpdate(update.changes, @event);
-                                @event = (await Transfer(@event, true)).@event;
-                            }
+                                Console.WriteLine($"Something went wrong getting the event with RollbackData --> {await getEvent2.Content.ReadAsStringAsync()}");
                         }
                         else
-                        {
-                            Console.WriteLine("Something went wrong transfering money, rolling back");
-                            if (transfer.data == null)
-                            {
-                                @event = (await Transfer(@event, true)).@event;
-                            }
-                            else
-                            {
-                                @event = await Transfer(transfer.data, @event);
-                            }
-                        }
+                            Console.WriteLine($"Something went wrong sending the rollback datas to the database");
                     }
                     else
-                        Console.WriteLine("Something went wrong getting the Event --> {0}", await getEvent.Content.ReadAsStringAsync());
+                        Console.WriteLine($"Something went wrong getting the Event --> {await getEvent1.Content.ReadAsStringAsync()}");
                 }
                 else
-                    Console.WriteLine("Something went wrong adding the Event --> {0}", await createEvent.Content.ReadAsStringAsync());
+                    Console.WriteLine($"Something went wrong adding the Event --> {await createEvent.Content.ReadAsStringAsync()}");
             }
             else
-                Console.WriteLine("Something went wrong updating Stage of Order {0} to Processing. --> {1}", order.OrderNumber, await orderUpdate1.Content.ReadAsStringAsync());
+                Console.WriteLine(
+                    $"Something went wrong updating Stage of Order {order.OrderNumber} to Processing. --> {await orderUpdate1.Content.ReadAsStringAsync()}");
 
+            if (order.Stage == OrderStage.Proccessing)
+            {
+                Console.WriteLine($"Something went wrong processing Order {order.OrderNumber}, setting Stage back to New");
+                var orderResponse2 = await orderClient.GetByJsonAsync(Controllers.Orders.ToString(), order);
 
+                order = DeserilizeJson<OrderProxy>(await orderResponse2.Content.ReadAsStringAsync()).First();
+
+                order.Stage = OrderStage.New;
+                var orderUpdate3 = await orderClient.PutAsJsonAsync(Controllers.Orders.ToString(), order);
+            }
         }
-
+        // Rollback method for StockUpdate
         private async Task<IEvent> StockUpdate(List<IRollbackData> changes, IEvent @event)
         {
             int count = 0;
@@ -290,6 +349,8 @@ namespace Main.Application
             else
             {
                 @event = await UpdateEvent("Update Stock Failed - Failed to Update an Item", EventStage.TotalFailure, @event);
+
+                return @event;
             }
         }
 
@@ -522,7 +583,10 @@ namespace Main.Application
             @event.Stage = stage;
 
             var updateEvent = await mainClient.PutAsJsonAsync(Controllers.Events.ToString(), @event);
-            Console.WriteLine("Update Event StatusCode --> {0}, Event Stage --> {1}", updateEvent.StatusCode.ToString(), @event.Stage.ToString());
+            Console.WriteLine($"Update Event StatusCode --> {updateEvent.StatusCode.ToString()}, Event Stage --> {@event.Stage.ToString()}");
+
+            var getEvent = await mainClient.GetByJsonAsync(Controllers.Events.ToString(), @event);
+            @event = DeserilizeJson<Event>(await getEvent.Content.ReadAsStringAsync()).Last();
 
             return @event;
         }
@@ -1150,8 +1214,7 @@ namespace Main.Application
 
             List<Event> events = new List<Event>();
             var response = await mainClient.GetByJsonAsync(Controllers.Events.ToString(), new Event());
-            // Original propertie to test for succes
-            //response.IsSuccessStatusCode
+
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 events = DeserilizeJson<Event>(await response.Content.ReadAsStringAsync());
@@ -1235,7 +1298,7 @@ namespace Main.Application
             Console.WriteLine("Displaying all known Orders...");
 
             List<OrderProxy> orders = new List<OrderProxy>();
-            var response = await orderClient.GetByJsonAsync(Controllers.Orders.ToString(), new OrderProxy() {Items = new List<IItem>()});
+            var response = await orderClient.GetByJsonAsync(Controllers.Orders.ToString(), new OrderProxy());
 
             if (response.StatusCode == HttpStatusCode.OK)
             {

@@ -2,6 +2,6 @@
 {
     public enum Controllers
     {
-        Events, Items, Orders, Accounts, People
+        Events, Items, Orders, Accounts, People, RollbackDatas
     }
 }

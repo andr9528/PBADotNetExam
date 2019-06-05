@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Main.Domain.Core;
 using Main.Domain.Enums;
+using Newtonsoft.Json;
 
 namespace Main.Domain.Concrete
 {
@@ -12,7 +13,19 @@ namespace Main.Domain.Concrete
         public int Id { get; set; }
         public byte[] Version { get; set; }
         public double Value { get; set; }
+        public int FK_Event { get; set; }
+        public IEvent Event { get; set; }
 
+        [JsonConstructor]
+        public RollbackData(Event @event)
+        {
+            Event = @event;
+        }
+
+        public RollbackData()
+        {
+            
+        }
         public override string ToString()
         {
             var builder = new StringBuilder();

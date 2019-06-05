@@ -7,11 +7,10 @@ namespace Main.Domain.Core
     {
         Services Service { get; set; }
         Action Action { get; set; }
-
-        /// <summary>
-        /// The string number indicating the Account, Item or what ever is being changed
-        /// </summary>
         string Number { get; set; }
         double Value { get; set; }
+        int FK_Event { get; set; }
+        IEvent Event { get; set; }
+
     }
 }

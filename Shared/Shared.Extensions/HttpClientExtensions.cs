@@ -10,7 +10,19 @@ namespace Shared.Extensions
     {
         public static Task<HttpResponseMessage> PostAsJsonAsync<T>(this HttpClient httpClient, string url, T data)
         {
-            var dataAsString = JsonConvert.SerializeObject(data);
+            var dataAsString = JsonConvert.SerializeObject(data, Formatting.Indented,
+                new JsonSerializerSettings
+                {
+                    TypeNameHandling = TypeNameHandling.Objects,
+                    TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple
+                });
+
+#if DEBUG
+            Console.WriteLine();
+            Console.WriteLine($"DEBUG Serialized {typeof(T).Name}: {dataAsString}");
+            Console.WriteLine();
+#endif
+
             var content = new StringContent(dataAsString);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             return httpClient.PostAsync(url, content);
@@ -18,7 +30,19 @@ namespace Shared.Extensions
 
         public static Task<HttpResponseMessage> PutAsJsonAsync<T>(this HttpClient httpClient, string url, T data)
         {
-            var dataAsString = JsonConvert.SerializeObject(data);
+            var dataAsString = JsonConvert.SerializeObject(data, Formatting.Indented,
+                new JsonSerializerSettings
+                {
+                    TypeNameHandling = TypeNameHandling.Objects,
+                    TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple
+                });
+
+#if DEBUG
+            Console.WriteLine();
+            Console.WriteLine($"DEBUG Serialized {typeof(T).Name}: {dataAsString}");
+            Console.WriteLine();
+#endif
+
             var content = new StringContent(dataAsString);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             return httpClient.PutAsync(url, content);
@@ -26,7 +50,19 @@ namespace Shared.Extensions
 
         public static Task<HttpResponseMessage> DeleteByJsonAsync<T>(this HttpClient httpClient, string url, T data)
         {
-            var dataAsString = JsonConvert.SerializeObject(data);
+            var dataAsString = JsonConvert.SerializeObject(data, Formatting.Indented,
+                new JsonSerializerSettings
+                {
+                    TypeNameHandling = TypeNameHandling.Objects,
+                    TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple
+                });
+
+#if DEBUG
+            Console.WriteLine();
+            Console.WriteLine($"DEBUG Serialized {typeof(T).Name}: {dataAsString}");
+            Console.WriteLine();
+#endif
+
             var content = new StringContent(dataAsString);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
@@ -41,7 +77,19 @@ namespace Shared.Extensions
 
         public static Task<HttpResponseMessage> GetByJsonAsync<T>(this HttpClient httpClient, string url, T data)
         {
-            var dataAsString = JsonConvert.SerializeObject(data);
+            var dataAsString = JsonConvert.SerializeObject(data, Formatting.Indented,
+                new JsonSerializerSettings
+                {
+                    TypeNameHandling = TypeNameHandling.Objects,
+                    TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple
+                });
+
+#if DEBUG
+            Console.WriteLine();
+            Console.WriteLine($"DEBUG Serialized {typeof(T).Name}: {dataAsString}");
+            Console.WriteLine();
+#endif
+
             var content = new StringContent(dataAsString);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 

@@ -32,7 +32,9 @@ namespace Main.Repository.EntityFramework
                 case IEvent e:
                     result = AddEvent(e);
                     break;
-
+                case IRollbackData r:
+                    result = AddRollbackData(r);
+                    break;
                 default:
                     throw new Exception("ERROR ERROR ERROR");
             }
@@ -66,6 +68,9 @@ namespace Main.Repository.EntityFramework
                 // case IYourDomainClass y:
                 //    result = DeleteYourDomainClass(y);
                 //    break;
+                case IEvent e:
+                    result = DeleteEvent(e);
+                    break;
                 default:
                     throw new Exception("ERROR ERROR ERROR");
             }
@@ -105,6 +110,9 @@ namespace Main.Repository.EntityFramework
                 case IEvent e:
                     entities = FindMultipleEvents(e) as ICollection<T>;
                     break;
+                case IRollbackData r:
+                    entities = FindMultipleRollbackDatas(r) as ICollection<T>;
+                    break;
                 default:
                     throw new Exception("ERROR ERROR ERROR");
             }
@@ -130,6 +138,9 @@ namespace Main.Repository.EntityFramework
                 //    break;
                 case IEvent e:
                     result = UpdateEvent(e);
+                    break;
+                case IRollbackData r:
+                    result = UpdateRollbackData(r);
                     break;
                 default:
                     throw new Exception("ERROR ERROR ERROR");

@@ -1,6 +1,7 @@
 ﻿using Service.Ordering.Domain.Core;
 using Service.Ordering.Domain.Enums;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace Main.Domain.Proxies
 {
@@ -17,6 +18,16 @@ namespace Main.Domain.Proxies
         public IOrder Order { get; set; }
         public int? FK_Order { get; set; }
 
+        [JsonConstructor]
+        public ItemProxy(OrderProxy order)
+        {
+            Order = order;
+        }
+
+        public ItemProxy()
+        {
+            
+        }
         public override string ToString()
         {
             var builder = new StringBuilder();

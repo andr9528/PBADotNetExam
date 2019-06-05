@@ -34,7 +34,7 @@ namespace Main.Domain.Proxies
 
         public PersonProxy()
         {
-            
+            Accounts = new List<IAccount>();   
         }
     }
 }

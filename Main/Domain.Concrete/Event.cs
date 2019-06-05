@@ -31,12 +31,20 @@ namespace Main.Domain.Concrete
         [JsonConstructor]
         public Event(List<RollbackData> data)
         {
-            RollbackDatas = new List<IRollbackData>(data);
+            if (data == null)
+            {
+                RollbackDatas = new List<IRollbackData>();
+            }
+            else
+            {
+                RollbackDatas = new List<IRollbackData>(data);
+            }
         }
+        
 
         public Event()
         {
-            
+            RollbackDatas = new List<IRollbackData>();
         }
     }
 }

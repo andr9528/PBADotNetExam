@@ -13,20 +13,20 @@ namespace Main.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class EventsController : ControllerBase
+    public class RollbackDatasController : ControllerBase
     {
         private readonly EntityRepository _context;
         private readonly IGenericRepository _handler;
 
-        public EventsController(EntityRepository context)
+        public RollbackDatasController(EntityRepository context)
         {
             _context = context;
             _handler = new GenericEntityRepositoryHandler(_context);
         }
 
-        // GET: api/Events
+        // GET: api/RollbackDatas
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Event>>> GetEvents(Event data)
+        public async Task<ActionResult<IEnumerable<RollbackData>>> GetRollbackDatas(RollbackData data)
         {
             try
             {
@@ -47,13 +47,12 @@ namespace Main.Api.Controllers
                 }
             }
 
-            //return await _context.Events.ToListAsync();
-            
+            //return await _context.RollbackDatas.ToListAsync();
         }
 
-        // GET: api/Events/5
+        // GET: api/RollbackDatas/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Event>> GetEvent(int id)
+        public async Task<ActionResult<RollbackData>> GetRollbackData(int id)
         {
             if (id == -1)
             {
@@ -64,34 +63,36 @@ namespace Main.Api.Controllers
             }
             else
             {
-                var @event = await _context.Events.FindAsync(id);
+                return Conflict(new NotSupportedException());
 
-                if (@event == null)
-                {
-                    return NotFound();
-                }
+                //var rollbackData = await _context.RollbackDatas.FindAsync(id);
 
-                return @event;
+                //if (rollbackData == null)
+                //{
+                //    return NotFound();
+                //}
+
+                //return rollbackData; 
             }
         }
 
-        // PUT: api/Events/5
+        // PUT: api/RollbackDatas/5
         [HttpPut/*("{id}")*/]
-        public async Task<IActionResult> PutEvent(Event @event)
+        public async Task<IActionResult> PutRollbackData(RollbackData data)
         {
             try
             {
-                var result = _handler.Update(@event);
+                var result = _handler.Update(data);
 
                 if (result)
                 {
                     await _context.SaveChangesAsync();
                     return StatusCode(StatusCodes.Status202Accepted,
-                        string.Format("Succesfully updated Event, Result -> {0}", result));
+                        string.Format("Succesfully updated RollbackData, Result -> {0}", result));
                 }
                 else
                 {
-                    return StatusCode(StatusCodes.Status409Conflict, string.Format("Unable to update Event, Result -> {0}", result));
+                    return StatusCode(StatusCodes.Status409Conflict, string.Format("Unable to update RollbackData, Result -> {0}", result));
                 }
             }
             catch (Exception e)
@@ -100,12 +101,12 @@ namespace Main.Api.Controllers
                 throw;
             }
 
-            //if (id != @event.Id)
+            //if (id != rollbackData.Id)
             //{
             //    return BadRequest();
             //}
 
-            //_context.Entry(@event).State = EntityState.Modified;
+            //_context.Entry(rollbackData).State = EntityState.Modified;
 
             //try
             //{
@@ -113,7 +114,7 @@ namespace Main.Api.Controllers
             //}
             //catch (DbUpdateConcurrencyException)
             //{
-            //    if (!EventExists(id))
+            //    if (!RollbackDataExists(id))
             //    {
             //        return NotFound();
             //    }
@@ -126,23 +127,23 @@ namespace Main.Api.Controllers
             //return NoContent();
         }
 
-        // POST: api/Events
+        // POST: api/RollbackDatas
         [HttpPost]
-        public async Task<ActionResult<Event>> PostEvent(Event @event)
+        public async Task<ActionResult<RollbackData>> PostRollbackData(RollbackData data)
         {
             try
             {
-                var result = _handler.Add(@event);
+                var result = _handler.Add(data);
 
                 if (result)
                 {
                     await _context.SaveChangesAsync();
                     return StatusCode(StatusCodes.Status201Created,
-                        string.Format("Succesfully added Event, Result -> {0}", result));
+                        string.Format("Succesfully added RollbackData, Result -> {0}", result));
                 }
                 else
                 {
-                    return StatusCode(StatusCodes.Status409Conflict, string.Format("Unable to add Event, Result -> {0}", result));
+                    return StatusCode(StatusCodes.Status409Conflict, string.Format("Unable to add RollbackData, Result -> {0}", result));
                 }
             }
             catch (Exception e)
@@ -151,52 +152,31 @@ namespace Main.Api.Controllers
                 throw e;
             }
 
-            //_context.Events.Add(@event);
+            //_context.RollbackDatas.Add(rollbackData);
             //await _context.SaveChangesAsync();
 
-            //return CreatedAtAction("GetEvent", new { id = @event.Id }, @event);
+            //return CreatedAtAction("GetRollbackData", new { id = rollbackData.Id }, rollbackData);
         }
 
-        // DELETE: api/Events/5
-        [HttpDelete/*("{id}")*/]
-        public async Task<ActionResult<Event>> DeleteEvent(Event @event)
+        // DELETE: api/RollbackDatas/5
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<RollbackData>> DeleteRollbackData(int id)
         {
-            try
+            var rollbackData = await _context.RollbackDatas.FindAsync(id);
+            if (rollbackData == null)
             {
-                var result = _handler.Delete(@event);
-
-                if (result)
-                {
-                    await _context.SaveChangesAsync();
-                    return StatusCode(StatusCodes.Status200OK,
-                        string.Format("Succesfully removed Event, Result -> {0}", result));
-                }
-                else
-                {
-                    return StatusCode(StatusCodes.Status409Conflict, string.Format("Unable to remove Event, Result -> {0}", result));
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw e;
+                return NotFound();
             }
 
-            //var @event = await _context.Events.FindAsync(id);
-            //if (@event == null)
-            //{
-            //    return NotFound();
-            //}
+            _context.RollbackDatas.Remove(rollbackData);
+            await _context.SaveChangesAsync();
 
-            //_context.Events.Remove(@event);
-            //await _context.SaveChangesAsync();
-
-            //return @event;
+            return rollbackData;
         }
 
-        private bool EventExists(int id)
+        private bool RollbackDataExists(int id)
         {
-            return _context.Events.Any(e => e.Id == id);
+            return _context.RollbackDatas.Any(e => e.Id == id);
         }
     }
 }
