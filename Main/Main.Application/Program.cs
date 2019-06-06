@@ -7,7 +7,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using Main.Domain.Concrete;
 using Main.Domain.Core;
 using Main.Domain.Enums;
 using Main.Domain.Proxies;
@@ -158,12 +157,12 @@ namespace Main.Application
 
                 var datas = new List<IRollbackData>()
                 {
-                    new RollbackData()
+                    new RollbackDataProxy()
                     {
                         Action = Action.Decrease, Number = order.FromAccount, Value = totalPrice,
                         Service = Services.Banking
                     },
-                    new RollbackData()
+                    new RollbackDataProxy()
                     {
                         Action = Action.Increase, Number = order.ToAccount, Value = totalPrice,
                         Service = Services.Banking
@@ -172,7 +171,7 @@ namespace Main.Application
 
                 foreach (var item in order.Items)
                 {
-                    datas.Add(new RollbackData()
+                    datas.Add(new RollbackDataProxy()
                     {
                         Action = Action.Decrease, Number = item.ItemNumber, Value = item.Amount,
                         Service = Services.Ordering
@@ -188,7 +187,7 @@ namespace Main.Application
 
                 #endregion
 
-                @event = new Event()
+                @event = new EventProxy()
                 {
                     Stage = EventStage.TransferMoney, OrderNumber = order.OrderNumber,
                     DatasAsString = dataString.ToString()
@@ -205,7 +204,7 @@ namespace Main.Application
 
                     if (getEvent1.StatusCode == HttpStatusCode.OK)
                     {
-                        @event = DeserilizeJson<Event>(await getEvent1.Content.ReadAsStringAsync()).Last();
+                        @event = DeserilizeJson<EventProxy>(await getEvent1.Content.ReadAsStringAsync()).Last();
 
                         int successCount = 0;
 
@@ -228,9 +227,9 @@ namespace Main.Application
 
                             if (getEvent2.StatusCode == HttpStatusCode.OK)
                             {
-                                @event = DeserilizeJson<Event>(await getEvent2.Content.ReadAsStringAsync()).Last();
+                                @event = DeserilizeJson<EventProxy>(await getEvent2.Content.ReadAsStringAsync()).Last();
 
-                                var transfer = (await Transfer(@event));
+                                var transfer = await Transfer(@event);
                                 @event = transfer.@event;
 
                                 if (@event.Stage == EventStage.StockUpdate)
@@ -256,26 +255,21 @@ namespace Main.Application
                                         {
                                             Console.WriteLine(
                                                 $"Something went wrong updating Stage of Order {order.OrderNumber} to Completed. --> {await orderUpdate2.Content.ReadAsStringAsync()}");
+                                            Console.WriteLine("Rolling back money transfer and Stock Update");
+                                            @event = await RollbackTransfer(transfer.data, @event);
+                                            @event = await StockUpdate(update.changes, @event);
+                                            @event = (await Transfer(@event, true)).@event;
                                         }
                                     }
                                     else
                                     {
-                                        Console.WriteLine("Something went wrong updating the item stock, rolling back");
-                                        @event = await StockUpdate(update.changes, @event);
-                                        @event = (await Transfer(@event, true)).@event;
+                                        Console.WriteLine("Something went wrong updating the item stock, rolling back money transfer");
+                                        @event = await RollbackTransfer(transfer.data, @event);
                                     }
                                 }
                                 else
                                 {
-                                    Console.WriteLine("Something went wrong transfering money, rolling back");
-                                    if (transfer.data == null)
-                                    {
-                                        @event = (await Transfer(@event, true)).@event;
-                                    }
-                                    else
-                                    {
-                                        @event = await Transfer(transfer.data, @event);
-                                    }
+                                    Console.WriteLine("Something went wrong transfering money");
                                 } 
                             }
                             else
@@ -305,6 +299,21 @@ namespace Main.Application
                 var orderUpdate3 = await orderClient.PutAsJsonAsync(Controllers.Orders.ToString(), order);
             }
         }
+
+        private async Task<IEvent> RollbackTransfer(IRollbackData data, IEvent @event)
+        {
+            if (data == null)
+            {
+                @event = (await Transfer(@event, true)).@event;
+            }
+            else
+            {
+                @event = await Transfer(data, @event);
+            }
+
+            return @event;
+        }
+
         // Rollback method for StockUpdate
         private async Task<IEvent> StockUpdate(List<IRollbackData> changes, IEvent @event)
         {
@@ -473,8 +482,8 @@ namespace Main.Application
                 to = tmp;
             }
 
-            var fromAccountResponse = orderClient.GetByJsonAsync(Controllers.Accounts.ToString(), new AccountProxy() { AccountNumber = from });
-            var toAccountResponse = orderClient.GetByJsonAsync(Controllers.Accounts.ToString(), new AccountProxy() { AccountNumber = to });
+            var fromAccountResponse = bankClient.GetByJsonAsync(Controllers.Accounts.ToString(), new AccountProxy() { AccountNumber = from });
+            var toAccountResponse = bankClient.GetByJsonAsync(Controllers.Accounts.ToString(), new AccountProxy() { AccountNumber = to });
             var amount = @event.RollbackDatas.FirstOrDefault(x => x.Service == Services.Banking).Value;
 
             if ((await fromAccountResponse).StatusCode == HttpStatusCode.OK & (await toAccountResponse).StatusCode == HttpStatusCode.OK)
@@ -491,8 +500,8 @@ namespace Main.Application
                     fromAccount.Balance = fromAccount.Balance - amount;
                     toAccount.Balance = toAccount.Balance + amount;
 
-                    var fromAccountResult = orderClient.PutAsJsonAsync(Controllers.Accounts.ToString(), fromAccount);
-                    var toAccountResult = orderClient.PutAsJsonAsync(Controllers.Accounts.ToString(), toAccount);
+                    var fromAccountResult = bankClient.PutAsJsonAsync(Controllers.Accounts.ToString(), fromAccount);
+                    var toAccountResult = bankClient.PutAsJsonAsync(Controllers.Accounts.ToString(), toAccount);
 
                     if ((await fromAccountResult).StatusCode == HttpStatusCode.Accepted & (await toAccountResult).StatusCode == HttpStatusCode.Accepted)
                     {
@@ -580,13 +589,16 @@ namespace Main.Application
         {
             Console.WriteLine(message);
 
+            var getEvent1 = await mainClient.GetByJsonAsync(Controllers.Events.ToString(), @event);
+            @event = DeserilizeJson<EventProxy>(await getEvent1.Content.ReadAsStringAsync()).Last();
+
             @event.Stage = stage;
 
             var updateEvent = await mainClient.PutAsJsonAsync(Controllers.Events.ToString(), @event);
             Console.WriteLine($"Update Event StatusCode --> {updateEvent.StatusCode.ToString()}, Event Stage --> {@event.Stage.ToString()}");
 
-            var getEvent = await mainClient.GetByJsonAsync(Controllers.Events.ToString(), @event);
-            @event = DeserilizeJson<Event>(await getEvent.Content.ReadAsStringAsync()).Last();
+            var getEvent2 = await mainClient.GetByJsonAsync(Controllers.Events.ToString(), @event);
+            @event = DeserilizeJson<EventProxy>(await getEvent2.Content.ReadAsStringAsync()).Last();
 
             return @event;
         }
@@ -1212,19 +1224,18 @@ namespace Main.Application
         {
             Console.WriteLine("Displaying all known Events...");
 
-            List<Event> events = new List<Event>();
-            var response = await mainClient.GetByJsonAsync(Controllers.Events.ToString(), new Event());
+            List<EventProxy> events = new List<EventProxy>();
+            var response = await mainClient.GetByJsonAsync(Controllers.Events.ToString(), new EventProxy());
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                events = DeserilizeJson<Event>(await response.Content.ReadAsStringAsync());
+                events = DeserilizeJson<EventProxy>(await response.Content.ReadAsStringAsync());
 
                 var builder = new StringBuilder();
 
                 builder.Append("Id\t");
                 builder.Append("Stage\t");
                 builder.Append("OrderNumber\t");
-                builder.Append("Description");
 
                 Console.WriteLine(builder.ToString());
 

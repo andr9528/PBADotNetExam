@@ -26,17 +26,6 @@ namespace Main.Domain.Concrete
         {
             
         }
-        public override string ToString()
-        {
-            var builder = new StringBuilder();
-
-            builder.Append(string.Format("Id = {0}, ", Id));
-            builder.Append(string.Format("Number = {0}, ", Number));
-            builder.Append(string.Format("Value = {0}, ", Value));
-            builder.Append(string.Format("Action = {0}, ", Action.ToString()));
-            builder.Append(string.Format("Service = {0}", Service.ToString()));
-
-            return builder.ToString();
-        }
+        
     }
 }
