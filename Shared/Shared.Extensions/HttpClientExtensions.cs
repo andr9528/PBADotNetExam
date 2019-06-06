@@ -18,9 +18,9 @@ namespace Shared.Extensions
                 });
 
 #if DEBUG
-            Console.WriteLine();
-            Console.WriteLine($"DEBUG Serialized {typeof(T).Name}: {dataAsString}");
-            Console.WriteLine();
+            //Console.WriteLine();
+            //Console.WriteLine($"DEBUG Serialized {typeof(T).Name}: {dataAsString}");
+            //Console.WriteLine();
 #endif
 
             var content = new StringContent(dataAsString);
@@ -38,9 +38,9 @@ namespace Shared.Extensions
                 });
 
 #if DEBUG
-            Console.WriteLine();
-            Console.WriteLine($"DEBUG Serialized {typeof(T).Name}: {dataAsString}");
-            Console.WriteLine();
+            //Console.WriteLine();
+            //Console.WriteLine($"DEBUG Serialized {typeof(T).Name}: {dataAsString}");
+            //Console.WriteLine();
 #endif
 
             var content = new StringContent(dataAsString);
@@ -58,9 +58,9 @@ namespace Shared.Extensions
                 });
 
 #if DEBUG
-            Console.WriteLine();
-            Console.WriteLine($"DEBUG Serialized {typeof(T).Name}: {dataAsString}");
-            Console.WriteLine();
+            //Console.WriteLine();
+            //Console.WriteLine($"DEBUG Serialized {typeof(T).Name}: {dataAsString}");
+            //Console.WriteLine();
 #endif
 
             var content = new StringContent(dataAsString);
@@ -85,9 +85,9 @@ namespace Shared.Extensions
                 });
 
 #if DEBUG
-            Console.WriteLine();
-            Console.WriteLine($"DEBUG Serialized {typeof(T).Name}: {dataAsString}");
-            Console.WriteLine();
+            //Console.WriteLine();
+            //Console.WriteLine($"DEBUG Serialized {typeof(T).Name}: {dataAsString}");
+            //Console.WriteLine();
 #endif
 
             var content = new StringContent(dataAsString);
