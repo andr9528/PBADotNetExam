@@ -34,9 +34,10 @@ namespace Main.Domain.Proxies
 
             builder.Append(Id + "\t");
             builder.Append(ItemNumber + "\t");
-            builder.Append(Name + "\t");
             builder.Append(Price + "\t");
             builder.Append(Amount + "\t");
+            builder.Append(Position + "\t\t");
+            builder.Append(Name + "\t");
             builder.Append(Description + "\t");
 
             return builder.ToString();

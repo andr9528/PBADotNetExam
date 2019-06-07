@@ -2,6 +2,6 @@
 {
     public enum OrderStage
     {
-        Null, New, Proccessing, Completed
+        Null, NewOrder, Proccessing, Completed
     }
 }

@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Main.Domain.Core;
 using Main.Domain.Enums;
@@ -33,6 +34,9 @@ namespace Main.Application
         static void Main(string[] args)
         {
             Console.WriteLine("Your Computer is called: {0}", Environment.MachineName);
+
+            Console.WriteLine("Waiting 5 seconds for Services to initiate");
+            Thread.Sleep(new TimeSpan(0,0,5));
 
             var program = new Program();
             program.RunAsync().GetAwaiter().GetResult();
@@ -100,7 +104,7 @@ namespace Main.Application
             Console.WriteLine("Processing orders --> asynchronous = {0}", async);
 
             List<OrderProxy> orders = new List<OrderProxy>();
-            var response = await orderClient.GetByJsonAsync(Controllers.Orders.ToString(), new OrderProxy() { Items = new List<IItem>(), Stage = OrderStage.New});
+            var response = await orderClient.GetByJsonAsync(Controllers.Orders.ToString(), new OrderProxy() { Items = new List<IItem>(), Stage = OrderStage.NewOrder});
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
@@ -295,7 +299,7 @@ namespace Main.Application
 
                 order = DeserilizeJson<OrderProxy>(await orderResponse2.Content.ReadAsStringAsync()).First();
 
-                order.Stage = OrderStage.New;
+                order.Stage = OrderStage.NewOrder;
                 var orderUpdate3 = await orderClient.PutAsJsonAsync(Controllers.Orders.ToString(), order);
             }
         }
@@ -878,7 +882,7 @@ namespace Main.Application
                 OrderProxy order = new OrderProxy()
                 {
                     Items = new List<IItem>(orderItems), OrderNumber = orderNumber.ToString(),
-                    FromAccount = fromAccount.AccountNumber, ToAccount = toAccount.AccountNumber, Stage = OrderStage.New
+                    FromAccount = fromAccount.AccountNumber, ToAccount = toAccount.AccountNumber, Stage = OrderStage.NewOrder
                 };
 
                 var postResponse = orderClient.PostAsJsonAsync(Controllers.Orders.ToString(), order);
@@ -1205,9 +1209,10 @@ namespace Main.Application
 
                 builder.Append("Id\t");
                 builder.Append("ItemNumber\t");
-                builder.Append("Name\t");
                 builder.Append("Price\t");
                 builder.Append("Amount\t");
+                builder.Append("Position\t");
+                builder.Append("Name\t\t");
                 builder.Append("Description");
 
                 Console.WriteLine(builder.ToString());
@@ -1234,7 +1239,7 @@ namespace Main.Application
                 var builder = new StringBuilder();
 
                 builder.Append("Id\t");
-                builder.Append("Stage\t");
+                builder.Append("Stage\t\t");
                 builder.Append("OrderNumber\t");
 
                 Console.WriteLine(builder.ToString());
@@ -1262,7 +1267,7 @@ namespace Main.Application
 
                 builder.Append("Id\t");
                 builder.Append("PersonNumber\t");
-                builder.Append("Name\t");
+                builder.Append("Name\t\t");
                 builder.Append("Address\t");
 
                 Console.WriteLine(builder.ToString());
@@ -1290,7 +1295,7 @@ namespace Main.Application
 
                 builder.Append("Id\t");
                 builder.Append("AccountNumber\t");
-                builder.Append("Balance\t");
+                builder.Append("Balance\t\t");
                 builder.Append("Owner Name\t");
 
                 Console.WriteLine(builder.ToString());
@@ -1318,8 +1323,8 @@ namespace Main.Application
                 var orderBuilder = new StringBuilder();
                 #region Order Builder
                 orderBuilder.Append("Id\t");
-                orderBuilder.Append("OrderNumber\t");
-                orderBuilder.Append("Stage\t");
+                orderBuilder.Append("OrderNumber\t\t");
+                orderBuilder.Append("Stage\t\t");
                 orderBuilder.Append("From Account\t");
                 orderBuilder.Append("To Account\t");
                 orderBuilder.Append("Items Count\t"); 
@@ -1329,9 +1334,10 @@ namespace Main.Application
                 #region Item Builder
                 itemBuilder.Append("Id\t");
                 itemBuilder.Append("ItemNumber\t");
-                itemBuilder.Append("Name\t");
                 itemBuilder.Append("Price\t");
                 itemBuilder.Append("Amount\t");
+                itemBuilder.Append("Position\t");
+                itemBuilder.Append("Name\t\t");
                 itemBuilder.Append("Description"); 
                 #endregion
 
